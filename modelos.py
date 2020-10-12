@@ -41,18 +41,47 @@ class Snake(object):
         body.childs += [gpu_body_quad]
 
         player = sg.SceneGraphNode('snok')
-        player.transform = tr.matmul([tr.scale(0.4, 0.4, 0), tr.translate(0, -1.25, 0)])
+        player.transform = tr.matmul([tr.scale(0.1, 0.1, 0), tr.translate(0, 0, 0)])
         player.childs += [body]
 
         transform_player = sg.SceneGraphNode('snokTR')
         transform_player.childs += [player]
 
         self.model = transform_player
-        self.pos = 0
+        self.pos_x = 0
+        self.pos_y = 0
+        self.v_x = 10
+        self.v_y = 10
     
     def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
-    
+        self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
+        sg.drawSceneGraphNode(self.model, pipeline, "transform")
+
+    def movement(self, dt):
+        self.pos_y = self.pos_y + self.v_y*dt
+        self.pos_x = self.pos_x + self.v_x*dt
+
+class Apple(object):
+
+    def __init__(self):
+        gpu_apple = es.toGPUShape(bs.createColorQuad(0.7, .7, .7))
+
+        apple = sg.SceneGraphNode('apple')
+        apple.transform = tr.scale(random.randrange(10, 21)/100, random.randrange(10, 21)/100, 1)
+        apple.childs += [gpu_apple]
+
+        apple_tr = sg.SceneGraphNode('appleTR')
+        apple_tr.childs += [apple]
+
+        self.pos_y = 1
+        self.pos_x = random.choice([-1, 0, 1])  # LOGICA
+        self.model = apple_tr
+        self.v_y = -0.005
+        self.a = -0.75
+
+    def draw(self, pipeline):
+        self.model.transform = tr.translate(0.7 * self.pos_x, self.pos_y, 0)
+        sg.drawSceneGraphNode(self.model, pipeline, "transform")
 
 class Chansey(object):
 
