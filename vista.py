@@ -39,7 +39,7 @@ if __name__ == '__main__':
     glUseProgram(pipeline.shaderProgram)
 
     # Setting up the clear screen color
-    glClearColor(0.85, 0.85, 0.85, 1.0)
+    glClearColor(0.0, 0.0, 0.0, 1.0)
 
     # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
@@ -47,9 +47,11 @@ if __name__ == '__main__':
     # HACEMOS LOS OBJETOS
     chansey = Chansey()
     eggs = EggCreator()
+    snok = Snake()
 
     controlador.set_model(chansey)
     controlador.set_eggs(eggs)
+    controlador.set_model(snok)
 
     t0 = 0
 
@@ -73,8 +75,9 @@ if __name__ == '__main__':
         chansey.collide(eggs)  # ---> RECORRER TODOS LOS HUEVOS
 
         # DIBUJAR LOS MODELOS
-        chansey.draw(pipeline)
+        #chansey.draw(pipeline)
         eggs.draw(pipeline)
+        snok.draw(pipeline)
 
         # Once the render is done, buffers are swapped, showing only the complete scene.
         glfw.swap_buffers(window)
