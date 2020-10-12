@@ -30,6 +30,30 @@ import random
 from typing import List
 
 
+class Snake(object):
+
+    def __init__(self):
+        # Figuras básicas
+        gpu_body_quad = es.toGPUShape(bs.createColorQuad(1, 1, 1))  # blanco
+
+        body = sg.SceneGraphNode('body')
+        body.transform = tr.uniformScale(1)
+        body.childs += [gpu_body_quad]
+
+        player = sg.SceneGraphNode('snok')
+        player.transform = tr.matmul([tr.scale(0.4, 0.4, 0), tr.translate(0, -1.25, 0)])
+        player.childs += [body]
+
+        transform_player = sg.SceneGraphNode('snokTR')
+        transform_player.childs += [player]
+
+        self.model = transform_player
+        self.pos = 0
+    
+    def draw(self, pipeline):
+        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
+    
+
 class Chansey(object):
 
     def __init__(self):
