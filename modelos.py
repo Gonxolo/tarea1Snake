@@ -50,8 +50,8 @@ class Snake(object):
         self.model = transform_player
         self.pos_x = 0
         self.pos_y = 0
-        self.v_x = 10
-        self.v_y = 10
+        self.v_x = 0
+        self.v_y = 1
     
     def draw(self, pipeline):
         self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
@@ -60,6 +60,27 @@ class Snake(object):
     def movement(self, dt):
         self.pos_y = self.pos_y + self.v_y*dt
         self.pos_x = self.pos_x + self.v_x*dt
+
+    def move_left(self):
+        if self.v_x < 0:
+            return
+        self.v_x *= -1
+
+    def move_right(self):
+        if self.v_x > 0:
+            return
+        self.v_x *= -1
+
+    def move_up(self):
+        if self.v_y > 0:
+            return
+        self.v_y *= -1
+
+    def move_down(self):
+        if self.v_y < 0:
+            return
+        self.v_y *= -1
+
 
 class Apple(object):
 
