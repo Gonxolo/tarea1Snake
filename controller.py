@@ -39,8 +39,16 @@ class Controller(object):
             # print('Move left')
             self.model.move_right()
 
-        elif (key == glfw.KEY_LEFT or key == glfw.KEY_RIGHT) and action == glfw.RELEASE:
-            self.model.move_center()
+        elif key == glfw.KEY_UP and action == glfw.PRESS:
+            # print('Move left')
+            self.model.move_up()
+
+        elif key == glfw.KEY_DOWN and action == glfw.PRESS:
+            # print('Move left')
+            self.model.move_down()        
+
+        #elif (key == glfw.KEY_LEFT or key == glfw.KEY_RIGHT) and action == glfw.RELEASE:
+        #    self.model.move_center()
 
         # Raton toca la pantalla....
         else:
