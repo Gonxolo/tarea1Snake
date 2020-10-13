@@ -62,24 +62,28 @@ class Snake(object):
         self.pos_x = self.pos_x + self.v_x*dt
 
     def move_left(self):
-        if self.v_x < 0:
+        if self.v_x != 0:
             return
-        self.v_x *= -1
+        self.v_y = 0
+        self.v_x = -1
 
     def move_right(self):
-        if self.v_x > 0:
+        if self.v_x != 0:
             return
-        self.v_x *= -1
+        self.v_y = 0
+        self.v_x = 1    
 
     def move_up(self):
-        if self.v_y > 0:
+        if self.v_y != 0:
             return
-        self.v_y *= -1
+        self.v_x = 0
+        self.v_y = 1
 
     def move_down(self):
-        if self.v_y < 0:
+        if self.v_y != 0:
             return
-        self.v_y *= -1
+        self.v_x = 0
+        self.v_y = -1
 
 
 class Apple(object):
@@ -103,6 +107,7 @@ class Apple(object):
     def draw(self, pipeline):
         self.model.transform = tr.translate(0.7 * self.pos_x, self.pos_y, 0)
         sg.drawSceneGraphNode(self.model, pipeline, "transform")
+
 
 class Chansey(object):
 
