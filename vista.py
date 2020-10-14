@@ -52,20 +52,19 @@ if __name__ == '__main__':
     # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-    gpuBoo = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
+    gpuOhno = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
 
     # HACEMOS LOS OBJETOS
     snok = Snake()
     background = Background()
-    #apple = Apple()
-    #apple = Apple()
+    apples = ApplePlacer()
     #background = Tiler()
 
     #background = createTextureQuad("background_grid.png")
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 1.0
+    limitFPS = 1.0 / 2.0
 
     lastTime = glfw.get_time()
     timer = lastTime
@@ -93,27 +92,29 @@ if __name__ == '__main__':
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT)
 
-
+        apples.create_apple()
 
         while deltaTime >= 1.0:
             deltaTime = 1
             snok.movement(deltaTime)
+            snok.collide(apples)
             updates += 1
             deltaTime -= 1
         
 
         # Reconocer la logica
         #SNAKE.COLLIDE(APPLE)  # ---> RECORRER TODOS LOS HUEVOS
+        snok.collide(apples)
 
         # DIBUJAR LOS MODELOS
-        #apple.draw(pipeline)
         glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
                            tr.matmul([
                                tr.translate(0, 0, 0),
                                tr.scale(1.9, 1.9, 1),
                                tr.identity()]))
-        pipeline2.drawShape(gpuBoo)
+        pipeline2.drawShape(gpuOhno)
         background.draw(pipeline2)
+        apples.draw(pipeline2)
         snok.draw(pipeline2)
 
         frames += 1
