@@ -6,6 +6,8 @@ las llamadas para obtener el dibujo de la escena.
 import glfw
 from OpenGL.GL import *
 import sys
+import basic_shapes as bs
+import easy_shaders as es
 
 from modelos import *
 from controller import Controller
@@ -19,7 +21,7 @@ if __name__ == '__main__':
     width = 800
     height = 800
 
-    window = glfw.create_window(width, height, 'Chansey E P I C', None, None)
+    window = glfw.create_window(width, height, 'AAAAAAAAAA', None, None)
 
     if not window:
         glfw.terminate()
@@ -33,53 +35,98 @@ if __name__ == '__main__':
     glfw.set_key_callback(window, controlador.on_key)
 
     # Assembling the shader program (pipeline) with both shaders
-    pipeline = es.SimpleTransformShaderProgram()
+    #pipeline = es.SimpleTransformShaderProgram()
+    pipeline2 = es.SimpleTextureTransformShaderProgram()
 
     # Telling OpenGL to use our shader program
-    glUseProgram(pipeline.shaderProgram)
+    #glUseProgram(pipeline.shaderProgram)
+    glUseProgram(pipeline2.shaderProgram)
 
     # Setting up the clear screen color
     glClearColor(0.0, 0.0, 0.0, 1.0)
 
+    # Enabling transparencies
+    glEnable(GL_BLEND)
+    glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA)    
+
     # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-    # HACEMOS LOS OBJETOS
-    chansey = Chansey()
-    #eggs = EggCreator()
-    snok = Snake()
+    #gpuBoo = es.toGPUShape(bs.createTextureQuad("img/boo.png"), GL_REPEAT, GL_NEAREST)
 
-    controlador.set_model(chansey)
-    #controlador.set_eggs(eggs)
+    # HACEMOS LOS OBJETOS
+    snok = Snake()
+    background = Tile()
+    #apple = Apple()
+    #apple = Apple()
+    #background = Tiler()
+
+    #background = createTextureQuad("background_grid.png")
+
     controlador.set_model(snok)
 
-    t0 = 0
+    limitFPS = 1.0 / 5.0
+
+    lastTime = glfw.get_time()
+    timer = lastTime
+
+    deltaTime = 0
+    nowTime = 0
+    
+    frames = 0
+    updates = 0
 
     while not glfw.window_should_close(window):  # Dibujando --> 1. obtener el input
 
         # Calculamos el dt
-        ti = glfw.get_time()
-        dt = ti - t0
-        t0 = ti
+        nowTime = glfw.get_time()
+        deltaTime += (nowTime - lastTime) / limitFPS
+        lastTime = nowTime
+
+
 
         # Using GLFW to check for input events
         glfw.poll_events()  # OBTIENE EL INPUT --> CONTROLADOR --> MODELOS
 
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT)
-        #eggs.create_egg()  # Aleatorio
-        #eggs.update(0.5*dt)  # 0.001
-        snok.movement(0.1*dt)
 
 
-        # Reconocer la logica
-        #chansey.collide(eggs)  # ---> RECORRER TODOS LOS HUEVOS
+        while deltaTime >= 1.0:
+            deltaTime = 1
+            snok.movement(deltaTime)
+            updates += 1
+            deltaTime -= 1
+        
 
         # DIBUJAR LOS MODELOS
-        #eggs.draw(pipeline)
-        snok.draw(pipeline)
+
+        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+        #                   tr.matmul([
+        #                       tr.translate(0, 0.5, 0),
+        #                       tr.scale(0.5, 0.5, 1.0),
+        #                       tr.identity()]))        
+        #pipeline2.drawShape(snok) 
+
+        # Reconocer la logica
+        #SNAKE.COLLIDE(APPLE)  # ---> RECORRER TODOS LOS HUEVOS
+
+        # DIBUJAR LOS MODELOS
+        #background.create_background()
+        #apple.draw(pipeline)
+        #snok.draw(pipeline)
+        background.draw(pipeline2)
+        snok.draw(pipeline2)
+
+        frames += 1
 
         # Once the render is done, buffers are swapped, showing only the complete scene.
         glfw.swap_buffers(window)
+
+        if glfw.get_time() - timer > 1.0:
+            timer += 1
+            print("FPS: ",frames," Updates: ",updates)
+            updates = 0
+            frames = 0
 
     glfw.terminate()
