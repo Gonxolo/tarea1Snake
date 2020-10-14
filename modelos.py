@@ -35,24 +35,24 @@ class Snake(object):
 
     def __init__(self):
         # Figuras básicas
-        gpu_body_quad = es.toGPUShape(bs.createTextureQuad("img/snake.png"), GL_REPEAT, GL_NEAREST)#es.toGPUShape(bs.createColorQuad(0.0, 1.0, 0.0))  # rojo
+        gpu_head_quad = es.toGPUShape(bs.createTextureQuad("img/snake.png"), GL_REPEAT, GL_NEAREST)#es.toGPUShape(bs.createColorQuad(0.0, 1.0, 0.0))  # rojo
 
         body = sg.SceneGraphNode('body')
         body.transform = tr.uniformScale(1)
         body.childs += [gpu_body_quad]
 
         player = sg.SceneGraphNode('snok')
-        player.transform = tr.matmul([tr.scale(1/12, 1/12, 0), tr.translate(0, 0, 0)])
+        player.transform = tr.matmul([tr.scale(1/6, 1/6, 0), tr.translate(0, 0, 0)])
         player.childs += [body]
 
         transform_player = sg.SceneGraphNode('snokTR')
         transform_player.childs += [player]
 
         self.model = transform_player
-        self.pos_x = 1/24
-        self.pos_y = 1/24
+        self.pos_x = 1/12
+        self.pos_y = 1/12
         self.v_x = 0
-        self.v_y = 1/12
+        self.v_y = 1/6
     
     def draw(self, pipeline):
         self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
@@ -66,29 +66,29 @@ class Snake(object):
         if self.v_x != 0:
             return
         self.v_y = 0
-        #self.pos_x = -1/12
-        self.v_x = -1/12
+        #self.pos_x = -1/10
+        self.v_x = -1/6
 
     def move_right(self):
         if self.v_x != 0:
             return
         self.v_y = 0
-        #self.pos_x = 1/12
-        self.v_x = 1/12    
+        #self.pos_x = 1/10
+        self.v_x = 1/6    
 
     def move_up(self):
         if self.v_y != 0:
             return
         self.v_x = 0
-        #self.pos_y = -1/12
-        self.v_y = 1/12
+        #self.pos_y = -1/10
+        self.v_y = 1/6
 
     def move_down(self):
         if self.v_y != 0:
             return
         self.v_x = 0
-        #self.pos_y = -1/12
-        self.v_y = -1/12
+        #self.pos_y = -1/10
+        self.v_y = -1/6
 
 
 class Tile(object):
@@ -98,18 +98,36 @@ class Tile(object):
         gpu_tile_quad = es.toGPUShape(bs.createTextureQuad("img/background_tile.png"), GL_REPEAT, GL_NEAREST)
 
         tile = sg.SceneGraphNode('snok')
-        tile.transform = tr.matmul([tr.translate(-1+1/12, 1-1/12, 0), tr.scale(1/6, 1/6, 0)])
+        tile.transform = tr.scale(2/6, 2/6, 0)
         tile.childs += [gpu_tile_quad]
 
         transform_tile = sg.SceneGraphNode('tileTR')
         transform_tile.childs += [tile]
 
-
-
         self.model = transform_tile
     
-    def draw(self, pipeline):
+    def draw(self, pipeline, c_x=0, c_y = 0):
+        self.model.transform = tr.translate(-1+(c_x+1)*2/6, 1-(c_y+1)*2/6, 0)
         sg.drawSceneGraphNode(self.model, pipeline, "transform")
+
+
+class Background(object):
+
+    tiles: List['Tile']
+    def __init__(self):
+        self.tiles = []
+    
+    def place_tile(self):
+        for i in range(25):
+            self.tiles.append(Tile())
+
+    def draw(self, pipeline):
+        c_x = 0
+        c_y = 0
+        for k in self.tiles:
+            k.draw(pipeline, c_x%5, c_y)
+            c_x += 1
+            c_y = c_x//5
 
 
 class Apple(object):
@@ -118,14 +136,14 @@ class Apple(object):
         gpu_apple = es.toGPUShape(bs.createColorQuad(0.7, .7, .7))
 
         apple = sg.SceneGraphNode('apple')
-        apple.transform = tr.scale(1/12, 1/12, 1)
+        apple.transform = tr.scale(1/10, 1/10, 1)
         apple.childs += [gpu_apple]
 
         apple_tr = sg.SceneGraphNode('appleTR')
         apple_tr.childs += [apple]
 
-        self.pos_y = random.choice([-1, 0, 1]) * 1/12
-        self.pos_x = random.choice([-1, 0, 1]) * 1/12 # LOGICA
+        self.pos_y = random.choice([-1, 0, 1]) * 1/10
+        self.pos_x = random.choice([-1, 0, 1]) * 1/10 # LOGICA
         self.model = apple_tr
 
     def draw(self, pipeline):
@@ -139,7 +157,7 @@ class StrongTile(object):
         gpu_strong_tile = es.toGPUShape(bs.createColorQuad(0, 0.2, 0.8)) #strong
 
         strong_tile = sg.SceneGraphNode('strong_tile')
-        strong_tile.transform = tr.scale(1/12, 1/12, 0)
+        strong_tile.transform = tr.scale(1/10, 1/10, 0)
         strong_tile.childs += [gpu_strong_tile]
 
         self.model = strong_tile
@@ -154,7 +172,7 @@ class WeakTile(object):
         gpu_weak_tile = es.toGPUShape(bs.createColorQuad(0, 0.1, 0.4)) #weak
 
         weak_tile = sg.SceneGraphNode('weak_tile')
-        weak_tile.transform = tr.scale(1/12, 1/12, 0)
+        weak_tile.transform = tr.scale(1/10, 1/10, 0)
         weak_tile.childs += [gpu_weak_tile]
         
         self.model = weak_tile
@@ -169,13 +187,13 @@ class BorderTile(object):
         gpu_border_tile = es.toGPUShape(bs.createColorQuad(0, 0.8, 0)) #border
 
         border_tile = sg.SceneGraphNode('border_tile')
-        border_tile.transform = tr.scale(1/12, 1/12, 0)
+        border_tile.transform = tr.scale(1/10, 1/10, 0)
         border_tile.childs += [gpu_border_tile]
         
         self.model = border_tile
 
-        self.pos_y = 1 - 1/12
-        self.pos_x = -1 + 1/12 
+        self.pos_y = 1 - 1/10
+        self.pos_x = -1 + 1/10 
 
 
     def draw(self, pipeline):
@@ -190,7 +208,7 @@ class Tiler(object):
         self.grid_size = 10
         self.on = True
         self.i = 0
-        self.N = 12                  
+        self.N = 10                  
 
     def draw(self, pipeline):
         if self.on:
