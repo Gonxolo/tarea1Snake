@@ -12,13 +12,18 @@ from typing import Union
 class Controller(object):
     model: Union['Chansey', None]  # Con esto queremos decir que el tipo de modelo es 'Chansey' (nuestra clase) ó None
     eggs: Union['EggCreator', None]
+    apples: Union['ApplePlacer', None]
 
     def __init__(self):
         self.model = None
         self.eggs = None
+        self.apples = None
 
     def set_model(self, m):
         self.model = m
+
+    def set_apples(self, a):
+        self.apples = a
 
     def set_eggs(self, e):
         self.eggs = e
