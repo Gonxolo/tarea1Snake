@@ -19,7 +19,6 @@ Pero aquí, como nuestra app es sencilla, definimos todas las clases aquí mismo
 2. Los huevos
 """
 
-import numpy as np
 import transformations as tr
 import basic_shapes as bs
 import scene_graph as sg
@@ -37,13 +36,17 @@ class Snake(object):
         # Figuras básicas
         gpu_head_quad = es.toGPUShape(bs.createTextureQuad("img/snake.png"), GL_REPEAT, GL_NEAREST)#es.toGPUShape(bs.createColorQuad(0.0, 1.0, 0.0))  # rojo
 
+        head = sg.SceneGraphNode('head')
+        head.transform = tr.uniformScale(1)
+        head.childs += [gpu_head_quad]
+
         body = sg.SceneGraphNode('body')
         body.transform = tr.uniformScale(1)
-        body.childs += [gpu_body_quad]
+        #body.childs += [gpu_body_quad]
 
         player = sg.SceneGraphNode('snok')
         player.transform = tr.matmul([tr.scale(1/6, 1/6, 0), tr.translate(0, 0, 0)])
-        player.childs += [body]
+        player.childs += [head]
 
         transform_player = sg.SceneGraphNode('snokTR')
         transform_player.childs += [player]
@@ -90,6 +93,14 @@ class Snake(object):
         #self.pos_y = -1/10
         self.v_y = -1/6
 
+    def collide(self, apples: 'ApplePlacer'):
+        deleted_apples = []
+        for a in apples.apples:
+            if (a.pos_y - 0.1 < self.pos_y < a.pos_y + 0.1) and (a.pos_x - 0.1 < self.pos_x < a.pos_x + 0.1):
+                deleted_apples.append(a)
+                print("A")
+        apples.delete(deleted_apples)
+
 
 class Tile(object):
 
@@ -133,23 +144,50 @@ class Background(object):
 class Apple(object):
 
     def __init__(self):
-        gpu_apple = es.toGPUShape(bs.createColorQuad(0.7, .7, .7))
+        #gpu_apple = es.toGPUShape(bs.createColorQuad(0.7, .7, .7))
+        gpuBoo = es.toGPUShape(bs.createTextureQuad("img/boo.png"), GL_REPEAT, GL_NEAREST)
 
         apple = sg.SceneGraphNode('apple')
-        apple.transform = tr.scale(1/10, 1/10, 1)
-        apple.childs += [gpu_apple]
+        apple.transform = tr.scale(1/6, 1/6, 1)
+        apple.childs += [gpuBoo]
 
         apple_tr = sg.SceneGraphNode('appleTR')
         apple_tr.childs += [apple]
 
-        self.pos_y = random.choice([-1, 0, 1]) * 1/10
-        self.pos_x = random.choice([-1, 0, 1]) * 1/10 # LOGICA
+        self.pos_y = random.randint(-5,4) * 1/6 + 1/12
+        self.pos_x = random.randint(-5,4) * 1/6 + 1/12 # LOGICA
         self.model = apple_tr
 
     def draw(self, pipeline):
         self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
         sg.drawSceneGraphNode(self.model, pipeline, "transform")
 
+
+class ApplePlacer(object):
+    apples: List['Apple']
+
+    def __init__(self):
+        self.apples = []
+
+    def draw(self, pipeline):
+        for k in self.apples:
+            #k.eaten()
+            k.draw(pipeline)
+    
+    def create_apple(self):
+        if len(self.apples) >= 1:  # No puede haber un máximo de 10 huevos en pantalla
+            return
+        else:
+            self.apples.append(Apple())
+
+    def delete(self, d):
+        if len(d) == 0:
+            return
+        remain_apples = []
+        for k in self.apples:  # Recorro todos los huevos
+            if k not in d:  # Si no se elimina, lo añado a la lista de huevos que quedan
+                remain_apples.append(k)
+        self.apples = remain_apples  # Actualizo la lista
 
 class StrongTile(object):
     def __init__(self):
