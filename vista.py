@@ -52,11 +52,11 @@ if __name__ == '__main__':
     # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-    #gpuBoo = es.toGPUShape(bs.createTextureQuad("img/boo.png"), GL_REPEAT, GL_NEAREST)
+    gpuBoo = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
 
     # HACEMOS LOS OBJETOS
     snok = Snake()
-    background = Tile()
+    background = Background()
     #apple = Apple()
     #apple = Apple()
     #background = Tiler()
@@ -65,7 +65,7 @@ if __name__ == '__main__':
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 5.0
+    limitFPS = 1.0 / 1.0
 
     lastTime = glfw.get_time()
     timer = lastTime
@@ -75,6 +75,8 @@ if __name__ == '__main__':
     
     frames = 0
     updates = 0
+
+    background.place_tile()
 
     while not glfw.window_should_close(window):  # Dibujando --> 1. obtener el input
 
@@ -92,6 +94,7 @@ if __name__ == '__main__':
         glClear(GL_COLOR_BUFFER_BIT)
 
 
+
         while deltaTime >= 1.0:
             deltaTime = 1
             snok.movement(deltaTime)
@@ -99,22 +102,17 @@ if __name__ == '__main__':
             deltaTime -= 1
         
 
-        # DIBUJAR LOS MODELOS
-
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-        #                   tr.matmul([
-        #                       tr.translate(0, 0.5, 0),
-        #                       tr.scale(0.5, 0.5, 1.0),
-        #                       tr.identity()]))        
-        #pipeline2.drawShape(snok) 
-
         # Reconocer la logica
         #SNAKE.COLLIDE(APPLE)  # ---> RECORRER TODOS LOS HUEVOS
 
         # DIBUJAR LOS MODELOS
-        #background.create_background()
         #apple.draw(pipeline)
-        #snok.draw(pipeline)
+        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+                           tr.matmul([
+                               tr.translate(0, 0, 0),
+                               tr.scale(1.9, 1.9, 1),
+                               tr.identity()]))
+        pipeline2.drawShape(gpuBoo)
         background.draw(pipeline2)
         snok.draw(pipeline2)
 
