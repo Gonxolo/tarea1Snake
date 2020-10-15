@@ -112,7 +112,6 @@ if __name__ == '__main__':
 
         background.draw(pipeline2)
         apples.draw(pipeline2)
-        snok.draw(pipeline2)
 
         glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
                            tr.matmul([
@@ -140,7 +139,9 @@ if __name__ == '__main__':
                                tr.translate(1-1/12, 0, 0),
                                tr.scale(1/6, 2, 1),
                                tr.identity()]))
-        pipeline2.drawShape(gpuOhnoRight)        
+        pipeline2.drawShape(gpuOhnoRight)
+
+        snok.draw(pipeline2)        
 
         frames += 1
 

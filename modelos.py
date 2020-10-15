@@ -84,9 +84,15 @@ class Snake(object):
         # Body
         for i in range(1,self.size):
             self.body_model.transform = tr.translate(self.x[self.pos_x[i]], self.y[self.pos_y[i]], 0)
-            sg.drawSceneGraphNode(self.body_model, pipeline, "transform")       
+            sg.drawSceneGraphNode(self.body_model, pipeline, "transform")
+
+        if not self.alive:
+            self.model.transform = tr.translate(self.x[self.pos_x[0]], self.y[self.pos_y[0]], 0)
+            sg.drawSceneGraphNode(self.model, pipeline, "transform")           
 
     def movement(self):
+
+        print(self.pos_x[0], self.pos_y[0])
         if not self.alive:
             return
 
@@ -131,9 +137,15 @@ class Snake(object):
     def collide(self, apples: 'ApplePlacer'): # Colissions w/ apples
         deleted_apples = []
 
+        if self.pos_x[0] == 0 or self.pos_x[0] == 11:
+            self.alive = False
+
+        if self.pos_y[0] == 0 or self.pos_y[0]  == 11:
+            self.alive = False
+
         for i in range(1,len(self.pos_y)):
-            if self.pos_y[0] + self.s_y == self.pos_y[i]:
-                if self.pos_x[0] + self.s_x == self.pos_x[i] :
+            if self.pos_y[0] == self.pos_y[i]:
+                if self.pos_x[0] == self.pos_x[i] :
                     print(i,i)
                     self.alive = False
                     
