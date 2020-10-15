@@ -3,20 +3,18 @@ Clase controlador, obtiene el input, lo procesa, y manda los mensajes
 a los modelos.
 """
 
-from modelos import Chansey, EggCreator
+from modelos import Snake, ApplePlacer
 import glfw
 import sys
 from typing import Union
 
 
 class Controller(object):
-    model: Union['Chansey', None]  # Con esto queremos decir que el tipo de modelo es 'Chansey' (nuestra clase) ó None
-    eggs: Union['EggCreator', None]
+    model: Union['Snake', None]  # Con esto queremos decir que el tipo de modelo es 'Chansey' (nuestra clase) ó None
     apples: Union['ApplePlacer', None]
 
     def __init__(self):
         self.model = None
-        self.eggs = None
         self.apples = None
 
     def set_model(self, m):
@@ -25,8 +23,6 @@ class Controller(object):
     def set_apples(self, a):
         self.apples = a
 
-    def set_eggs(self, e):
-        self.eggs = e
 
     def on_key(self, window, key, scancode, action, mods):
         if not (action == glfw.PRESS or action == glfw.RELEASE):
