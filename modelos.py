@@ -35,14 +35,37 @@ class Snake(object):
     def __init__(self):
         # Figuras básicas
         gpu_head_quad = es.toGPUShape(bs.createTextureQuad("img/snake.png"), GL_REPEAT, GL_NEAREST)#es.toGPUShape(bs.createColorQuad(0.0, 1.0, 0.0))  # rojo
+        gpu_body_quad = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
+
+        body = sg.SceneGraphNode('body')
+        body.transform = tr.uniformScale(1)
+        body.childs += [gpu_body_quad]
+
+        player_body = sg.SceneGraphNode('snok_body')
+        player_body.transform = tr.matmul([tr.scale(1/6, 1/6, 0), tr.translate(0, 0, 0)])
+        player_body.childs += [body]
+
+        transform_player_body = sg.SceneGraphNode('snok_bodyTR')
+        transform_player_body.childs += [player_body]
+
+        self.body_model = transform_player_body
 
         head = sg.SceneGraphNode('head')
         head.transform = tr.uniformScale(1)
         head.childs += [gpu_head_quad]
 
-        body = sg.SceneGraphNode('body')
-        body.transform = tr.uniformScale(1)
-        #body.childs += [gpu_body_quad]
+        self.s_x = 0
+        self.s_y = 1
+
+        self.alive = True
+
+        self.x = [i/12 for i in range(-11,12,2)]
+        self.y = [j/12 for j in range(-11,12,2)]
+        self.ppos_x = [7,7,7]
+        self.ppos_y = [7,6,5]
+        self.pos_x = [7,7,7]
+        self.pos_y = [7,6,5]
+        self.size = 3
 
         player = sg.SceneGraphNode('snok')
         player.transform = tr.matmul([tr.scale(1/6, 1/6, 0), tr.translate(0, 0, 0)])
@@ -52,54 +75,80 @@ class Snake(object):
         transform_player.childs += [player]
 
         self.model = transform_player
-        self.pos_x = 1/12
-        self.pos_y = 1/12
-        self.v_x = 0
-        self.v_y = 1/6
     
     def draw(self, pipeline):
-        self.model.transform = tr.translate(self.pos_x, self.pos_y, 0)
+        # Head
+        self.model.transform = tr.translate(self.x[self.pos_x[0]], self.y[self.pos_y[0]], 0)
         sg.drawSceneGraphNode(self.model, pipeline, "transform")
 
-    def movement(self, dt):
-        self.pos_y = self.pos_y + self.v_y*dt
-        self.pos_x = self.pos_x + self.v_x*dt
+        # Body
+        for i in range(1,self.size):
+            self.body_model.transform = tr.translate(self.x[self.pos_x[i]], self.y[self.pos_y[i]], 0)
+            sg.drawSceneGraphNode(self.body_model, pipeline, "transform")       
 
-    def move_left(self):
-        if self.v_x != 0:
+    def movement(self):
+        if not self.alive:
             return
-        self.v_y = 0
-        #self.pos_x = -1/10
-        self.v_x = -1/6
 
-    def move_right(self):
-        if self.v_x != 0:
+        #Guardar las posiciones previas
+        for i in range(self.size):
+            self.ppos_x[i] = self.pos_x[i] 
+            self.ppos_y[i] = self.pos_y[i] 
+        
+        #Actualizar posiciones
+        self.pos_y[0] += self.s_y
+        self.pos_x[0] += self.s_x
+
+        # pos nueva i = pos previa i-1
+        for i in range(1,self.size):
+            self.pos_y[i] = self.ppos_y[i-1]
+            self.pos_x[i] = self.ppos_x[i-1]
+    
+    def move_left(self): #LEFT
+        if self.s_x != 0:
             return
-        self.v_y = 0
-        #self.pos_x = 1/10
-        self.v_x = 1/6    
-
-    def move_up(self):
-        if self.v_y != 0:
+        self.s_y = 0
+        self.s_x = -1
+    
+    def move_right(self): #RIGHT
+        if self.s_x != 0:
             return
-        self.v_x = 0
-        #self.pos_y = -1/10
-        self.v_y = 1/6
+        self.s_y = 0
+        self.s_x = 1    
 
-    def move_down(self):
-        if self.v_y != 0:
+    def move_up(self): #UP
+        if self.s_y != 0:
             return
-        self.v_x = 0
-        #self.pos_y = -1/10
-        self.v_y = -1/6
+        self.s_x = 0
+        self.s_y = 1
 
-    def collide(self, apples: 'ApplePlacer'):
+    def move_down(self): #DOWN
+        if self.s_y != 0:
+            return
+        self.s_x = 0
+        self.s_y = -1
+
+    def collide(self, apples: 'ApplePlacer'): # Colissions w/ apples
         deleted_apples = []
+
+        for i in range(1,len(self.pos_y)):
+            if self.pos_y[0] + self.s_y == self.pos_y[i]:
+                if self.pos_x[0] + self.s_x == self.pos_x[i] :
+                    print(i,i)
+                    self.alive = False
+                    
         for a in apples.apples:
-            if (a.pos_y - 0.1 < self.pos_y < a.pos_y + 0.1) and (a.pos_x - 0.1 < self.pos_x < a.pos_x + 0.1):
+            if (a.pos_y - 0.1 < self.y[self.pos_y[0]] < a.pos_y + 0.1) and (a.pos_x - 0.1 < self.x[self.pos_x[0]] < a.pos_x + 0.1):
                 deleted_apples.append(a)
+                c = self.size-1
+                self.pos_x.append(self.ppos_x[c])
+                self.pos_y.append(self.ppos_y[c])
+                self.ppos_x.append(self.ppos_x[c])
+                self.ppos_y.append(self.ppos_y[c])
+                self.size += 1
                 print("A")
         apples.delete(deleted_apples)
+
 
 
 class Tile(object):
@@ -154,8 +203,10 @@ class Apple(object):
         apple_tr = sg.SceneGraphNode('appleTR')
         apple_tr.childs += [apple]
 
+        #self.pos_y = random.choice([i for i in range(-9,11,2)])
+        #self.pos_x = random.choice([i for i in range(-9,11,2)])       
         self.pos_y = random.randint(-5,4) * 1/6 + 1/12
-        self.pos_x = random.randint(-5,4) * 1/6 + 1/12 # LOGICA
+        self.pos_x = random.randint(-5,4) * 1/6 + 1/12
         self.model = apple_tr
 
     def draw(self, pipeline):
@@ -171,11 +222,10 @@ class ApplePlacer(object):
 
     def draw(self, pipeline):
         for k in self.apples:
-            #k.eaten()
             k.draw(pipeline)
     
     def create_apple(self):
-        if len(self.apples) >= 1:  # No puede haber un máximo de 10 huevos en pantalla
+        if len(self.apples) >= 1:
             return
         else:
             self.apples.append(Apple())
@@ -189,6 +239,7 @@ class ApplePlacer(object):
                 remain_apples.append(k)
         self.apples = remain_apples  # Actualizo la lista
 
+
 class StrongTile(object):
     def __init__(self):
         #Tiles
@@ -200,7 +251,8 @@ class StrongTile(object):
 
         self.model = strong_tile
 
-    def draw(self, pipeline):
+    def draw(self, pipeline, c_x, c_y):
+        self.model.transform = tr.translate(-1+(c_x+1)*2/6, 1-(c_y+1)*2/6, 0)
         sg.drawSceneGraphNode(self.model, pipeline, 'transform')
 
 

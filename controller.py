@@ -37,11 +37,11 @@ class Controller(object):
 
         # Controlador modifica al modelo
         elif key == glfw.KEY_LEFT and action == glfw.PRESS:
-            # print('Move left')
+            #print('Move right')
             self.model.move_left()
 
         elif key == glfw.KEY_RIGHT and action == glfw.PRESS:
-            # print('Move left')
+            #print('Move left')
             self.model.move_right()
 
         elif key == glfw.KEY_UP and action == glfw.PRESS:

@@ -9,6 +9,7 @@ import sys
 import basic_shapes as bs
 import easy_shaders as es
 
+
 from modelos import *
 from controller import Controller
 
@@ -52,7 +53,10 @@ if __name__ == '__main__':
     # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-    gpuOhno = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
+    gpuOhnoTop = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
+    gpuOhnoBottom = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
+    gpuOhnoLeft = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
+    gpuOhnoRight = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
 
     # HACEMOS LOS OBJETOS
     snok = Snake()
@@ -64,7 +68,7 @@ if __name__ == '__main__':
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 2.0
+    limitFPS = 1.0 / 5.0
 
     lastTime = glfw.get_time()
     timer = lastTime
@@ -84,8 +88,6 @@ if __name__ == '__main__':
         deltaTime += (nowTime - lastTime) / limitFPS
         lastTime = nowTime
 
-
-
         # Using GLFW to check for input events
         glfw.poll_events()  # OBTIENE EL INPUT --> CONTROLADOR --> MODELOS
 
@@ -96,7 +98,7 @@ if __name__ == '__main__':
 
         while deltaTime >= 1.0:
             deltaTime = 1
-            snok.movement(deltaTime)
+            snok.movement()
             snok.collide(apples)
             updates += 1
             deltaTime -= 1
@@ -104,18 +106,41 @@ if __name__ == '__main__':
 
         # Reconocer la logica
         #SNAKE.COLLIDE(APPLE)  # ---> RECORRER TODOS LOS HUEVOS
-        snok.collide(apples)
+        #snok.collide(apples)
 
         # DIBUJAR LOS MODELOS
-        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-                           tr.matmul([
-                               tr.translate(0, 0, 0),
-                               tr.scale(1.9, 1.9, 1),
-                               tr.identity()]))
-        pipeline2.drawShape(gpuOhno)
+
         background.draw(pipeline2)
         apples.draw(pipeline2)
         snok.draw(pipeline2)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+                           tr.matmul([
+                               tr.translate(0, 1-1/12, 0),
+                               tr.scale(2, 1/6, 1),
+                               tr.identity()]))
+        pipeline2.drawShape(gpuOhnoTop)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+                           tr.matmul([
+                               tr.translate(0, -1+1/12, 0),
+                               tr.scale(2, 1/6, 1),
+                               tr.identity()]))
+        pipeline2.drawShape(gpuOhnoBottom)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+                           tr.matmul([
+                               tr.translate(-1+1/12, 0, 0),
+                               tr.scale(1/6, 2, 1),
+                               tr.identity()]))
+        pipeline2.drawShape(gpuOhnoLeft)
+
+        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+                           tr.matmul([
+                               tr.translate(1-1/12, 0, 0),
+                               tr.scale(1/6, 2, 1),
+                               tr.identity()]))
+        pipeline2.drawShape(gpuOhnoRight)        
 
         frames += 1
 
