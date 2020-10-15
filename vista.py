@@ -68,7 +68,7 @@ if __name__ == '__main__':
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 5.0
+    limitFPS = 1.0 / 2.0
 
     lastTime = glfw.get_time()
     timer = lastTime
@@ -96,10 +96,14 @@ if __name__ == '__main__':
 
         apples.create_apple()
 
+        snok.collide(apples)
+        
         while deltaTime >= 1.0:
             deltaTime = 1
             snok.movement()
-            snok.collide(apples)
+            background.Counter()
+            if background.count > 10:
+                background.update()
             updates += 1
             deltaTime -= 1
         
@@ -113,33 +117,33 @@ if __name__ == '__main__':
         background.draw(pipeline2)
         apples.draw(pipeline2)
 
-        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-                           tr.matmul([
-                               tr.translate(0, 1-1/12, 0),
-                               tr.scale(2, 1/6, 1),
-                               tr.identity()]))
-        pipeline2.drawShape(gpuOhnoTop)
+        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+        #                   tr.matmul([
+        #                       tr.translate(0, 1-1/12, 0),
+        #                       tr.scale(2, 1/6, 1),
+        #                       tr.identity()]))
+        #pipeline2.drawShape(gpuOhnoTop)
 
-        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-                           tr.matmul([
-                               tr.translate(0, -1+1/12, 0),
-                               tr.scale(2, 1/6, 1),
-                               tr.identity()]))
-        pipeline2.drawShape(gpuOhnoBottom)
+        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+        #                   tr.matmul([
+        #                       tr.translate(0, -1+1/12, 0),
+        #                       tr.scale(2, 1/6, 1),
+        #                       tr.identity()]))
+        #pipeline2.drawShape(gpuOhnoBottom)
 
-        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-                           tr.matmul([
-                               tr.translate(-1+1/12, 0, 0),
-                               tr.scale(1/6, 2, 1),
-                               tr.identity()]))
-        pipeline2.drawShape(gpuOhnoLeft)
+        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+        #                   tr.matmul([
+        #                       tr.translate(-1+1/12, 0, 0),
+        #                       tr.scale(1/6, 2, 1),
+        #                       tr.identity()]))
+        #pipeline2.drawShape(gpuOhnoLeft)
 
-        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-                           tr.matmul([
-                               tr.translate(1-1/12, 0, 0),
-                               tr.scale(1/6, 2, 1),
-                               tr.identity()]))
-        pipeline2.drawShape(gpuOhnoRight)
+        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+        #                   tr.matmul([
+        #                       tr.translate(1-1/12, 0, 0),
+        #                       tr.scale(1/6, 2, 1),
+        #                       tr.identity()]))
+        #pipeline2.drawShape(gpuOhnoRight)
 
         snok.draw(pipeline2)        
 

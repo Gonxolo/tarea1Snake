@@ -34,21 +34,35 @@ class Snake(object):
 
     def __init__(self):
         # Figuras básicas
-        gpu_head_quad = es.toGPUShape(bs.createTextureQuad("img/snake.png"), GL_REPEAT, GL_NEAREST)#es.toGPUShape(bs.createColorQuad(0.0, 1.0, 0.0))  # rojo
-        gpu_body_quad = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
+        gpu_head_quad = es.toGPUShape(bs.createTextureQuad("img/guy_a.png"), GL_REPEAT, GL_NEAREST)#es.toGPUShape(bs.createColorQuad(0.0, 1.0, 0.0))  # rojo
+        gpu_body_quad = es.toGPUShape(bs.createTextureQuad("img/guy_b.png"), GL_REPEAT, GL_NEAREST)
+        gpu_body2_quad = es.toGPUShape(bs.createTextureQuad("img/guy_c.png"), GL_REPEAT, GL_NEAREST)
 
         body = sg.SceneGraphNode('body')
         body.transform = tr.uniformScale(1)
         body.childs += [gpu_body_quad]
 
         player_body = sg.SceneGraphNode('snok_body')
-        player_body.transform = tr.matmul([tr.scale(1/6, 1/6, 0), tr.translate(0, 0, 0)])
+        player_body.transform = tr.matmul([tr.scale(1/6, 1/6, 0), tr.translate(0, 2/6, 0)])
         player_body.childs += [body]
 
         transform_player_body = sg.SceneGraphNode('snok_bodyTR')
         transform_player_body.childs += [player_body]
 
         self.body_model = transform_player_body
+
+        body2 = sg.SceneGraphNode('body2')
+        body2.transform = tr.uniformScale(1)
+        body2.childs += [gpu_body2_quad]
+
+        player_body2 = sg.SceneGraphNode('snok_body2')
+        player_body2.transform = tr.matmul([tr.scale(1/6, 1/6, 0), tr.translate(0, 2/6, 0)])
+        player_body2.childs += [body2]
+
+        transform_player_body2 = sg.SceneGraphNode('snok_bodyTR')
+        transform_player_body2.childs += [player_body2]
+
+        self.body2_model = transform_player_body2
 
         head = sg.SceneGraphNode('head')
         head.transform = tr.uniformScale(1)
@@ -68,7 +82,7 @@ class Snake(object):
         self.size = 3
 
         player = sg.SceneGraphNode('snok')
-        player.transform = tr.matmul([tr.scale(1/6, 1/6, 0), tr.translate(0, 0, 0)])
+        player.transform = tr.matmul([tr.scale(1/6, 1/6, 0), tr.translate(0, 2/6, 0)])
         player.childs += [head]
 
         transform_player = sg.SceneGraphNode('snokTR')
@@ -83,8 +97,13 @@ class Snake(object):
 
         # Body
         for i in range(1,self.size):
-            self.body_model.transform = tr.translate(self.x[self.pos_x[i]], self.y[self.pos_y[i]], 0)
-            sg.drawSceneGraphNode(self.body_model, pipeline, "transform")
+            if i%2 == 0:
+                self.body_model.transform = tr.translate(self.x[self.pos_x[i]], self.y[self.pos_y[i]], 0)
+                sg.drawSceneGraphNode(self.body_model, pipeline, "transform")
+            else:
+                self.body2_model.transform = tr.translate(self.x[self.pos_x[i]], self.y[self.pos_y[i]], 0)
+                sg.drawSceneGraphNode(self.body2_model, pipeline, "transform")
+
 
         if not self.alive:
             self.model.transform = tr.translate(self.x[self.pos_x[0]], self.y[self.pos_y[0]], 0)
@@ -92,7 +111,6 @@ class Snake(object):
 
     def movement(self):
 
-        print(self.pos_x[0], self.pos_y[0])
         if not self.alive:
             return
 
@@ -146,7 +164,6 @@ class Snake(object):
         for i in range(1,len(self.pos_y)):
             if self.pos_y[0] == self.pos_y[i]:
                 if self.pos_x[0] == self.pos_x[i] :
-                    print(i,i)
                     self.alive = False
                     
         for a in apples.apples:
@@ -158,25 +175,63 @@ class Snake(object):
                 self.ppos_x.append(self.ppos_x[c])
                 self.ppos_y.append(self.ppos_y[c])
                 self.size += 1
-                print("A")
+                
+            for i in range(1,len(self.pos_x)):    
+                if (a.pos_y - 0.1 < self.y[self.pos_y[i]] < a.pos_y + 0.1) and (a.pos_x - 0.1 < self.x[self.pos_x[i]] < a.pos_x + 0.1):
+                    deleted_apples.append(a)
         apples.delete(deleted_apples)
-
 
 
 class Tile(object):
 
     def __init__(self):
         # Figuras básicas
-        gpu_tile_quad = es.toGPUShape(bs.createTextureQuad("img/background_tile.png"), GL_REPEAT, GL_NEAREST)
+        gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/dancefloor_a.png"), GL_REPEAT, GL_NEAREST)
+        gpu_tile_b_quad = es.toGPUShape(bs.createTextureQuad("img/dancefloor_b.png"), GL_REPEAT, GL_NEAREST)
+        gpu_tile_c_quad = es.toGPUShape(bs.createTextureQuad("img/dancefloor_c.png"), GL_REPEAT, GL_NEAREST)
+        gpu_tile_d_quad = es.toGPUShape(bs.createTextureQuad("img/dancefloor_d.png"), GL_REPEAT, GL_NEAREST)
 
-        tile = sg.SceneGraphNode('snok')
-        tile.transform = tr.scale(2/6, 2/6, 0)
-        tile.childs += [gpu_tile_quad]
+        tile_a = sg.SceneGraphNode('tile_a')
+        tile_a.transform = tr.scale(2/6, 2/6, 0)
+        tile_a.childs += [gpu_tile_a_quad]
 
-        transform_tile = sg.SceneGraphNode('tileTR')
-        transform_tile.childs += [tile]
+        tile_b = sg.SceneGraphNode('tile_b')
+        tile_b.transform = tr.scale(2/6, 2/6, 0)
+        tile_b.childs += [gpu_tile_b_quad]
 
-        self.model = transform_tile
+        tile_c = sg.SceneGraphNode('tile_c')
+        tile_c.transform = tr.scale(2/6, 2/6, 0)
+        tile_c.childs += [gpu_tile_c_quad]
+
+        tile_d = sg.SceneGraphNode('tile_d')
+        tile_d.transform = tr.scale(2/6, 2/6, 0)
+        tile_d.childs += [gpu_tile_d_quad]
+
+        transform_tile_a = sg.SceneGraphNode('tile_aTR')
+        transform_tile_a.childs += [tile_a]
+
+        transform_tile_b = sg.SceneGraphNode('tile_bTR')
+        transform_tile_b.childs += [tile_b]
+
+        transform_tile_c = sg.SceneGraphNode('tile_cTR')
+        transform_tile_c.childs += [tile_c]
+
+        transform_tile_d = sg.SceneGraphNode('tile_dTR')
+        transform_tile_d.childs += [tile_d]
+
+        self.selector = random.choice([0, 1, 2, 3])
+        
+        if self.selector == 0:
+            self.model = transform_tile_a
+
+        if self.selector == 1:
+            self.model = transform_tile_b
+
+        if self.selector == 2:
+            self.model = transform_tile_c
+
+        if self.selector == 3:
+            self.model = transform_tile_d
     
     def draw(self, pipeline, c_x=0, c_y = 0):
         self.model.transform = tr.translate(-1+(c_x+1)*2/6, 1-(c_y+1)*2/6, 0)
@@ -188,6 +243,17 @@ class Background(object):
     tiles: List['Tile']
     def __init__(self):
         self.tiles = []
+        self.count = 0
+
+    def Counter(self):
+        self.count += 1
+
+    def update(self):
+        k = self.tiles[0]
+        for j in range(len(self.tiles)-1):
+            self.tiles[j] = self.tiles[j+1]
+            self.tiles[len(self.tiles)-1] = k
+        self.count = 0
     
     def place_tile(self):
         for i in range(25):
@@ -215,10 +281,10 @@ class Apple(object):
         apple_tr = sg.SceneGraphNode('appleTR')
         apple_tr.childs += [apple]
 
-        #self.pos_y = random.choice([i for i in range(-9,11,2)])
-        #self.pos_x = random.choice([i for i in range(-9,11,2)])       
-        self.pos_y = random.randint(-5,4) * 1/6 + 1/12
-        self.pos_x = random.randint(-5,4) * 1/6 + 1/12
+        self.pos_y = random.choice([j * 1/6 for j in range(-5,5)]) + 1/12
+        self.pos_x = random.choice([i * 1/6 for i in range(-5,5)]) + 1/12     
+        #self.pos_y = random.randint(-5,4) * 1/6 + 1/12
+        #self.pos_x = random.randint(-5,4) * 1/6 + 1/12
         self.model = apple_tr
 
     def draw(self, pipeline):
@@ -250,223 +316,3 @@ class ApplePlacer(object):
             if k not in d:  # Si no se elimina, lo añado a la lista de huevos que quedan
                 remain_apples.append(k)
         self.apples = remain_apples  # Actualizo la lista
-
-
-class StrongTile(object):
-    def __init__(self):
-        #Tiles
-        gpu_strong_tile = es.toGPUShape(bs.createColorQuad(0, 0.2, 0.8)) #strong
-
-        strong_tile = sg.SceneGraphNode('strong_tile')
-        strong_tile.transform = tr.scale(1/10, 1/10, 0)
-        strong_tile.childs += [gpu_strong_tile]
-
-        self.model = strong_tile
-
-    def draw(self, pipeline, c_x, c_y):
-        self.model.transform = tr.translate(-1+(c_x+1)*2/6, 1-(c_y+1)*2/6, 0)
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
-
-
-class WeakTile(object):
-    def __init__(self):
-        #Tiles
-        gpu_weak_tile = es.toGPUShape(bs.createColorQuad(0, 0.1, 0.4)) #weak
-
-        weak_tile = sg.SceneGraphNode('weak_tile')
-        weak_tile.transform = tr.scale(1/10, 1/10, 0)
-        weak_tile.childs += [gpu_weak_tile]
-        
-        self.model = weak_tile
-
-    def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
-
-
-class BorderTile(object):
-    def __init__(self):
-        #Tiles
-        gpu_border_tile = es.toGPUShape(bs.createColorQuad(0, 0.8, 0)) #border
-
-        border_tile = sg.SceneGraphNode('border_tile')
-        border_tile.transform = tr.scale(1/10, 1/10, 0)
-        border_tile.childs += [gpu_border_tile]
-        
-        self.model = border_tile
-
-        self.pos_y = 1 - 1/10
-        self.pos_x = -1 + 1/10 
-
-
-    def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
-
-
-class Tiler(object):
-    tiles: List['Tiles']
-
-    def __init__(self):
-        self.tiles = []
-        self.grid_size = 10
-        self.on = True
-        self.i = 0
-        self.N = 10                  
-
-    def draw(self, pipeline):
-        if self.on:
-            for k in self.tiles:
-                self.i += 1
-                k.draw(pipeline)
-
-
-class Chansey(object):
-
-    def __init__(self):
-        # Figuras básicas
-        gpu_body_quad = es.toGPUShape(bs.createColorQuad(1, 0.8, 0.8))  # rosado
-        gpu_leg_quad = es.toGPUShape(bs.createColorQuad(1, 0.5, 1))  # rosado fuerte
-        gpu_eye_quad = es.toGPUShape(bs.createColorQuad(1, 1, 1))  # blanco
-        # ... triangulos
-
-        body = sg.SceneGraphNode('body')
-        body.transform = tr.uniformScale(1)
-        body.childs += [gpu_body_quad]
-
-        # Creamos las piernas
-        leg = sg.SceneGraphNode('leg')  # pierna generica
-        leg.transform = tr.scale(0.25, 0.25, 1)
-        leg.childs += [gpu_leg_quad]
-
-        # Izquierda
-        leg_izq = sg.SceneGraphNode('legLeft')
-        leg_izq.transform = tr.translate(-0.5, -0.5, 0)  # tr.matmul([])..
-        leg_izq.childs += [leg]
-
-        leg_der = sg.SceneGraphNode('legRight')
-        leg_der.transform = tr.translate(0.5, -.5, 0)
-        leg_der.childs += [leg]
-
-        # Ojitos
-        eye = sg.SceneGraphNode('eye')
-        eye.transform = tr.scale(0.25, 0.25, 1)
-        eye.childs += [gpu_eye_quad]
-
-        eye_izq = sg.SceneGraphNode('eyeLeft')
-        eye_izq.transform = tr.translate(-0.3, 0.5, 0)
-        eye_izq.childs += [eye]
-
-        eye_der = sg.SceneGraphNode('eyeRight')
-        eye_der.transform = tr.translate(0.3, 0.5, 0)
-        eye_der.childs += [eye]
-
-        # Ensamblamos el mono
-        mono = sg.SceneGraphNode('chansey')
-        mono.transform = tr.matmul([tr.scale(0.4, 0.4, 0), tr.translate(0, -1.25, 0)])
-        mono.childs += [body, leg_izq, leg_der, eye_izq, eye_der]
-
-        transform_mono = sg.SceneGraphNode('chanseyTR')
-        transform_mono.childs += [mono]
-
-        self.model = transform_mono
-        self.pos = 0
-
-    def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.model, pipeline, 'transform')
-
-    def move_left(self):
-        self.model.transform = tr.translate(-0.7, 0, 0)
-        self.pos = -1
-
-    def move_right(self):
-        self.model.transform = tr.translate(0.7, 0, 0)
-        self.pos = 1
-
-    def move_center(self):
-        self.model.transform = tr.translate(0, 0, 0)
-        self.pos = 0
-
-    def collide(self, eggs: 'EggCreator'):
-        if not eggs.on:  # Si el jugador perdió, no detecta colisiones
-            return
-
-        deleted_eggs = []
-        for e in eggs.eggs:
-            if e.pos_y < -0.7 and e.pos_x != self.pos:
-                print('MUERE, GIT GUD')  # YOU D   I   E   D, GIT GUD
-                """
-                En este caso, podríamos hacer alguna pestaña de alerta al usuario,
-                cambiar el fondo por alguna textura, o algo así, en este caso lo que hicimos fue
-                cambiar el color del fondo de la app por uno rojo.
-                """
-                eggs.die()  # Básicamente cambia el color del fondo, pero podría ser algo más elaborado, obviamente
-                deleted_eggs.append(e)
-            elif -0.25 >= e.pos_y >= -0.7 and self.pos == e.pos_x:
-                # print('COLISIONA CON EL HUEVO')
-                deleted_eggs.append(e)
-        eggs.delete(deleted_eggs)
-
-
-class Egg(object):
-
-    def __init__(self):
-        gpu_egg = es.toGPUShape(bs.createColorQuad(0.7, .7, .7))
-
-        egg = sg.SceneGraphNode('egg')
-        egg.transform = tr.scale(random.randrange(10, 21)/100, random.randrange(10, 21)/100, 1)
-        egg.childs += [gpu_egg]
-
-        egg_tr = sg.SceneGraphNode('eggTR')
-        egg_tr.childs += [egg]
-
-        self.pos_y = 1
-        self.pos_x = random.choice([-1, 0, 1])  # LOGICA
-        self.model = egg_tr
-        self.v_y = -0.005
-        self.a = -0.75
-
-    def draw(self, pipeline):
-        self.model.transform = tr.translate(0.7 * self.pos_x, self.pos_y, 0)
-        sg.drawSceneGraphNode(self.model, pipeline, "transform")
-
-    def update(self, dt):
-        self.v_y = self.v_y + self.a*dt
-        self.pos_y = self.pos_y + self.v_y*dt
-
-
-class EggCreator(object):
-    eggs: List['Egg']
-
-    def __init__(self):
-        self.eggs = []
-        self.lives = 0
-        self.on = True
-
-    def die(self):  # DARK SOULS
-        self.lives += 1
-        if self.lives == 3:
-            glClearColor(1, 0, 0, 1.0)  # Cambiamos a rojo
-            self.on = False  # Dejamos de generar huevos, si es True es porque el jugador ya perdió
-
-    def create_egg(self):
-        if len(self.eggs) >= 10:  # No puede haber un máximo de 10 huevos en pantalla
-            return
-        if random.random() < 0.001:
-            self.eggs.append(Egg())
-
-    def draw(self, pipeline):
-        if self.on:
-            for k in self.eggs:
-                k.draw(pipeline)
-
-    def update(self, dt):
-        for k in self.eggs:
-            k.update(dt)
-
-    def delete(self, d):
-        if len(d) == 0:
-            return
-        remain_eggs = []
-        for k in self.eggs:  # Recorro todos los huevos
-            if k not in d:  # Si no se elimina, lo añado a la lista de huevos que quedan
-                remain_eggs.append(k)
-        self.eggs = remain_eggs  # Actualizo la lista
