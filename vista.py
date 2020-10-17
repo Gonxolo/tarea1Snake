@@ -15,6 +15,8 @@ from controller import Controller
 
 if __name__ == '__main__':
 
+    grid_size = int(sys.argv[1])+2
+
     # Initialize glfw
     if not glfw.init():
         sys.exit()
@@ -59,16 +61,17 @@ if __name__ == '__main__':
     gpuOhnoRight = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
 
     # HACEMOS LOS OBJETOS
-    snok = Snake()
-    background = Background()
-    apples = ApplePlacer()
+    snok = Snake(grid_size)
+    #background = Background()
+    apples = ApplePlacer(grid_size)
     #background = Tiler()
+    background = Tile(grid_size)
 
     #background = createTextureQuad("background_grid.png")
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 2.0
+    limitFPS = 1.0 / 5.0
 
     lastTime = glfw.get_time()
     timer = lastTime
@@ -79,7 +82,7 @@ if __name__ == '__main__':
     frames = 0
     updates = 0
 
-    background.place_tile()
+    #background.place_tile()
 
     while not glfw.window_should_close(window):  # Dibujando --> 1. obtener el input
 
@@ -99,11 +102,11 @@ if __name__ == '__main__':
         snok.collide(apples)
         
         while deltaTime >= 1.0:
-            deltaTime = 1
+            #deltaTime = 1
             snok.movement()
-            background.Counter()
-            if background.count > 10:
-                background.update()
+            #background.Counter()
+            #if background.count > 10:
+            #    background.update()
             updates += 1
             deltaTime -= 1
         
