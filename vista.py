@@ -38,7 +38,7 @@ if __name__ == '__main__':
     glfw.set_key_callback(window, controlador.on_key)
 
     # Assembling the shader program (pipeline) with both shaders
-    #pipeline = es.SimpleTransformShaderProgram()
+    pipeline = es.SimpleTransformShaderProgram()
     pipeline2 = es.SimpleTextureTransformShaderProgram()
 
     # Telling OpenGL to use our shader program
@@ -66,6 +66,7 @@ if __name__ == '__main__':
     apples = ApplePlacer(grid_size)
     #background = Tiler()
     background = Tile(grid_size)
+    message = Message()
 
     #background = createTextureQuad("background_grid.png")
 
@@ -81,6 +82,9 @@ if __name__ == '__main__':
     
     frames = 0
     updates = 0
+
+    death_time = 0
+    Ida = True
 
     #background.place_tile()
 
@@ -101,6 +105,19 @@ if __name__ == '__main__':
 
         snok.collide(apples)
         
+
+        if not snok.alive:
+            if Ida:    
+                death_time += 0.01
+                if death_time >= 0.65:
+                    #death_time = 1.5
+                    Ida = False
+            else:
+                death_time -= 0.01
+                if death_time <= -0.65:
+                    #death_time = 0
+                    Ida = True
+            
         while deltaTime >= 1.0:
             #deltaTime = 1
             snok.movement()
@@ -118,7 +135,8 @@ if __name__ == '__main__':
         # DIBUJAR LOS MODELOS
 
         background.draw(pipeline2)
-        apples.draw(pipeline2)
+        glUseProgram(pipeline.shaderProgram)
+        apples.draw(pipeline)
 
         #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
         #                   tr.matmul([
@@ -148,7 +166,15 @@ if __name__ == '__main__':
         #                       tr.identity()]))
         #pipeline2.drawShape(gpuOhnoRight)
 
-        snok.draw(pipeline2)        
+        glUseProgram(pipeline2.shaderProgram)
+        snok.draw(pipeline2)
+
+        if not snok.alive:
+            glUseProgram(pipeline.shaderProgram)
+            message.draw_background(pipeline)
+            glUseProgram(pipeline2.shaderProgram)
+            message.draw(pipeline2,death_time)
+                
 
         frames += 1
 

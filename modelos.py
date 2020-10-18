@@ -93,9 +93,6 @@ class Snake(object):
         self.model = transform_player
     
     def draw(self, pipeline):
-        # Head
-        self.model.transform = tr.translate(self.x[self.pos_x[0]], self.y[self.pos_y[0]], 0)
-        sg.drawSceneGraphNode(self.model, pipeline, "transform")
 
         # Body
         for i in range(1,self.body_size):
@@ -106,11 +103,16 @@ class Snake(object):
                 self.body2_model.transform = tr.translate(self.x[self.pos_x[i]], self.y[self.pos_y[i]], 0)
                 sg.drawSceneGraphNode(self.body2_model, pipeline, "transform")
 
+        # Head
+        if self.alive:
+            self.model.transform = tr.translate(self.x[self.pos_x[0]], self.y[self.pos_y[0]], 0)
+            sg.drawSceneGraphNode(self.model, pipeline, "transform")
+
 
         if not self.alive:
             self.model.transform = tr.translate(self.x[self.pos_x[0]], self.y[self.pos_y[0]], 0)
-            sg.drawSceneGraphNode(self.model, pipeline, "transform")           
-
+            sg.drawSceneGraphNode(self.model, pipeline, "transform")   
+        
     def movement(self):
 
         if not self.alive:
@@ -274,15 +276,15 @@ class Background(object):
 class Apple(object):
 
     def __init__(self, grid_size):
-        #gpu_apple = es.toGPUShape(bs.createColorQuad(0.7, .7, .7))
-        gpuBoo = es.toGPUShape(bs.createTextureQuad("img/boo.png"), GL_REPEAT, GL_NEAREST)
+        gpu_apple = es.toGPUShape(bs.createColorQuad(1.0, 0.0, 0.0))
+        #gpuBoo = es.toGPUShape(bs.createTextureQuad("img/boo.png"), GL_REPEAT, GL_NEAREST)
 
         self.size = grid_size
         self.sizef = grid_size/2
 
         apple = sg.SceneGraphNode('apple')
         apple.transform = tr.scale(1/self.sizef, 1/self.sizef, 1)
-        apple.childs += [gpuBoo]
+        apple.childs += [gpu_apple]#gpuBoo]
 
         apple_tr = sg.SceneGraphNode('appleTR')
         apple_tr.childs += [apple]
@@ -321,3 +323,44 @@ class ApplePlacer(object):
             if k not in d:  # Si no se elimina, lo añado a la lista de huevos que quedan
                 remain_apples.append(k)
         self.apples = remain_apples  # Actualizo la lista
+
+
+class Message(object):
+    def __init__(self):
+        black_background = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        gpu_game_over = es.toGPUShape(bs.createTextureQuad("img/game_over.png"), GL_REPEAT, GL_NEAREST)
+
+        background = sg.SceneGraphNode('background')
+        background.transform = tr.scale(2,2,1)
+        background.childs += [black_background]
+        
+        game_over = sg.SceneGraphNode('game_over')
+        game_over.transform = tr.scale(1.6,0.9,1)
+        game_over.childs += [gpu_game_over]
+
+        game_over_tr = sg.SceneGraphNode('game_overTR')
+        game_over_tr.childs += [game_over]
+
+        background_tr = sg.SceneGraphNode('backgroundTR')
+        background_tr.childs += [background]
+
+        self.background = background_tr
+        self.game_over_model = game_over_tr
+
+    def draw(self, pipeline,timer):
+        self.game_over_model.transform = tr.rotationY(timer)
+        sg.drawSceneGraphNode(self.game_over_model, pipeline, "transform")
+
+    def draw_background(self, pipeline):
+        sg.drawSceneGraphNode(self.background, pipeline, "transform")
+
+
+# pipeline_no_texture = es.SimpleTransformShaderProgram()
+# pipeline_texture = es.SimpleTextureTransformShaderProgram()
+# ...
+# ...
+# ...
+#                 glUseProgram(pipeline_texture.shaderProgram)
+# snake.draw(pipeline_texture)
+# glUseProgram(pipeline_no_texture.shaderProgram)
+# apple.draw(pipeline_transform)
