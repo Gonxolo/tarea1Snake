@@ -191,10 +191,11 @@ class Snake(object):
 class Tile(object):
 
     def __init__(self, grid_size):
-        # Figuras básicas
-        gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_a.png",1,1), GL_REPEAT, GL_NEAREST)
-
+        
         self.size = grid_size
+        
+        # Figuras básicas
+        gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_a.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST)
 
         tile_a = sg.SceneGraphNode('tile_a')
         tile_a.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
