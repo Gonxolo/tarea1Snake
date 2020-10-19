@@ -191,84 +191,20 @@ class Snake(object):
 class Tile(object):
 
     def __init__(self, grid_size):
-        # Figuras básicas
-        # gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_a.png",1.1,1.1), GL_REPEAT, GL_NEAREST)
-        gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/rust_tile.png"), GL_REPEAT, GL_NEAREST)
-        gpu_tile_b_quad = es.toGPUShape(bs.createTextureQuad("img/cyan_tile.png"), GL_REPEAT, GL_NEAREST)
-        gpu_tile_c_quad = es.toGPUShape(bs.createTextureQuad("img/lemon_tile.png"), GL_REPEAT, GL_NEAREST)
-        gpu_tile_d_quad = es.toGPUShape(bs.createTextureQuad("img/pink_tile.png"), GL_REPEAT, GL_NEAREST)
-        gpu_tile_e_quad = es.toGPUShape(bs.createTextureQuad("img/red_tile.png"), GL_REPEAT, GL_NEAREST)
-        gpu_tile_f_quad = es.toGPUShape(bs.createTextureQuad("img/lime_tile.png"), GL_REPEAT, GL_NEAREST)
-        gpu_tile_g_quad = es.toGPUShape(bs.createTextureQuad("img/blue_tile.png"), GL_REPEAT, GL_NEAREST)
-
+        
         self.size = grid_size
-
-        # tile_a = sg.SceneGraphNode('tile_a')
-        # tile_a.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
-        # tile_a.childs += [gpu_tile_a_quad]
+        
+        # Figuras básicas
+        gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_a.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST)
 
         tile_a = sg.SceneGraphNode('tile_a')
-        tile_a.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
+        tile_a.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
         tile_a.childs += [gpu_tile_a_quad]
-
-        tile_b = sg.SceneGraphNode('tile_b')
-        tile_b.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
-        tile_b.childs += [gpu_tile_b_quad]
-
-        tile_c = sg.SceneGraphNode('tile_c')
-        tile_c.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
-        tile_c.childs += [gpu_tile_c_quad]
-
-        tile_d = sg.SceneGraphNode('tile_d')
-        tile_d.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
-        tile_d.childs += [gpu_tile_d_quad]
-
-        tile_e = sg.SceneGraphNode('tile_e')
-        tile_e.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
-        tile_e.childs += [gpu_tile_e_quad]
-
-        tile_f = sg.SceneGraphNode('tile_f')
-        tile_f.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
-        tile_f.childs += [gpu_tile_f_quad]
-
-        tile_g = sg.SceneGraphNode('tile_g')
-        tile_g.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
-        tile_g.childs += [gpu_tile_g_quad]
 
         transform_tile_a = sg.SceneGraphNode('tile_aTR')
         transform_tile_a.childs += [tile_a]
 
-        transform_tile_b = sg.SceneGraphNode('tile_bTR')
-        transform_tile_b.childs += [tile_b]
-
-        transform_tile_c = sg.SceneGraphNode('tile_cTR')
-        transform_tile_c.childs += [tile_c]
-
-        transform_tile_d = sg.SceneGraphNode('tile_dTR')
-        transform_tile_d.childs += [tile_d]
-
-        transform_tile_e = sg.SceneGraphNode('tile_bTR')
-        transform_tile_e.childs += [tile_e]
-
-        transform_tile_f = sg.SceneGraphNode('tile_cTR')
-        transform_tile_f.childs += [tile_f]
-
-        transform_tile_g = sg.SceneGraphNode('tile_dTR')
-        transform_tile_g.childs += [tile_g]
-
         self.amodel = transform_tile_a
-
-        self.bmodel = transform_tile_b
-
-        self.cmodel = transform_tile_c
-
-        self.dmodel = transform_tile_d
-
-        self.emodel = transform_tile_e
-
-        self.fmodel = transform_tile_f
-
-        self.gmodel = transform_tile_g
 
         self.counter = 0
         self.ran_sec1 = [random.randint(0,69) for i in range(self.size-2)]
@@ -279,32 +215,7 @@ class Tile(object):
         self.ran_sec2 = [random.randint(0,69) for i in range(self.size-2)]
     
     def draw(self, pipeline):
-        #sg.drawSceneGraphNode(self.amodel, pipeline, "transform")
-
-        for j in range(self.size-2):
-            for i in range(self.size-2):
-                a = self.ran_sec1[i] * self.ran_sec2[j] - i*self.ran_sec1[-1*j] * self.ran_sec2[i] + j*i + i + j + self.ran_sec1[0] - self.ran_sec2[0]
-                if a%7 == 0:    
-                    self.amodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
-                    sg.drawSceneGraphNode(self.amodel, pipeline, "transform")
-                if a%7 == 1:    
-                    self.bmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
-                    sg.drawSceneGraphNode(self.bmodel, pipeline, "transform")
-                if a%7 == 2:    
-                    self.cmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
-                    sg.drawSceneGraphNode(self.cmodel, pipeline, "transform")
-                if a%7 == 3:    
-                    self.dmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
-                    sg.drawSceneGraphNode(self.dmodel, pipeline, "transform")
-                if a%7 == 4:    
-                    self.emodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
-                    sg.drawSceneGraphNode(self.emodel, pipeline, "transform")
-                if a%7 == 5:    
-                    self.fmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
-                    sg.drawSceneGraphNode(self.fmodel, pipeline, "transform")
-                if a%7 == 6:    
-                    self.gmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
-                    sg.drawSceneGraphNode(self.gmodel, pipeline, "transform")
+        sg.drawSceneGraphNode(self.amodel, pipeline, "transform")
 
 
 class Apple(object):

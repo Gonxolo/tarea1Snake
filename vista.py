@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 2.0
+    limitFPS = 1.0 / 5.0
 
     lastTime = glfw.get_time()
     timer = lastTime
