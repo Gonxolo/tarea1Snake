@@ -156,13 +156,12 @@ class Snake(object):
         self.s_x = 0
         self.s_y = -1
 
-    def collide(self, apples: 'ApplePlacer'): # Colissions w/ apples
+    def collide(self, apples: 'ApplePlacer'): # Colissions w/ apples , self and borders
         deleted_apples = []
-
-        if self.pos_x[0] == 0 or self.pos_x[0] == self.size-1:
+        if min(self.pos_x) <= 0 or max(self.pos_x) >= self.size-1:
             self.alive = False
 
-        if self.pos_y[0] == 0 or self.pos_y[0]  == self.size-1:
+        if min(self.pos_y) <= 0 or max(self.pos_y)  >= self.size-1:
             self.alive = False
 
         for i in range(1,len(self.pos_y)):
@@ -193,12 +192,20 @@ class Tile(object):
 
     def __init__(self, grid_size):
         # Figuras básicas
+        # gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_a.png",1.1,1.1), GL_REPEAT, GL_NEAREST)
         gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/rust_tile.png"), GL_REPEAT, GL_NEAREST)
         gpu_tile_b_quad = es.toGPUShape(bs.createTextureQuad("img/cyan_tile.png"), GL_REPEAT, GL_NEAREST)
         gpu_tile_c_quad = es.toGPUShape(bs.createTextureQuad("img/lemon_tile.png"), GL_REPEAT, GL_NEAREST)
         gpu_tile_d_quad = es.toGPUShape(bs.createTextureQuad("img/pink_tile.png"), GL_REPEAT, GL_NEAREST)
+        gpu_tile_e_quad = es.toGPUShape(bs.createTextureQuad("img/red_tile.png"), GL_REPEAT, GL_NEAREST)
+        gpu_tile_f_quad = es.toGPUShape(bs.createTextureQuad("img/lime_tile.png"), GL_REPEAT, GL_NEAREST)
+        gpu_tile_g_quad = es.toGPUShape(bs.createTextureQuad("img/blue_tile.png"), GL_REPEAT, GL_NEAREST)
 
         self.size = grid_size
+
+        # tile_a = sg.SceneGraphNode('tile_a')
+        # tile_a.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
+        # tile_a.childs += [gpu_tile_a_quad]
 
         tile_a = sg.SceneGraphNode('tile_a')
         tile_a.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
@@ -216,6 +223,18 @@ class Tile(object):
         tile_d.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
         tile_d.childs += [gpu_tile_d_quad]
 
+        tile_e = sg.SceneGraphNode('tile_e')
+        tile_e.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
+        tile_e.childs += [gpu_tile_e_quad]
+
+        tile_f = sg.SceneGraphNode('tile_f')
+        tile_f.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
+        tile_f.childs += [gpu_tile_f_quad]
+
+        tile_g = sg.SceneGraphNode('tile_g')
+        tile_g.transform = tr.scale(1/(self.size/2), 1/(self.size/2), 0)
+        tile_g.childs += [gpu_tile_g_quad]
+
         transform_tile_a = sg.SceneGraphNode('tile_aTR')
         transform_tile_a.childs += [tile_a]
 
@@ -228,49 +247,64 @@ class Tile(object):
         transform_tile_d = sg.SceneGraphNode('tile_dTR')
         transform_tile_d.childs += [tile_d]
 
-        self.model = transform_tile_a
+        transform_tile_e = sg.SceneGraphNode('tile_bTR')
+        transform_tile_e.childs += [tile_e]
 
-        #self.model = transform_tile_b
+        transform_tile_f = sg.SceneGraphNode('tile_cTR')
+        transform_tile_f.childs += [tile_f]
 
-        #self.model = transform_tile_c
+        transform_tile_g = sg.SceneGraphNode('tile_dTR')
+        transform_tile_g.childs += [tile_g]
 
-        #self.model = transform_tile_d
-    
-    def draw(self, pipeline):
-        for j in range(self.size-2):
-            for i in range(self.size-2):
-                self.model.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
-                sg.drawSceneGraphNode(self.model, pipeline, "transform")
+        self.amodel = transform_tile_a
 
+        self.bmodel = transform_tile_b
 
-class Background(object):
+        self.cmodel = transform_tile_c
 
-    tiles: List['Tile']
-    def __init__(self):
-        self.tiles = []
-        self.count = 0
+        self.dmodel = transform_tile_d
 
-    def Counter(self):
-        self.count += 1
+        self.emodel = transform_tile_e
+
+        self.fmodel = transform_tile_f
+
+        self.gmodel = transform_tile_g
+
+        self.counter = 0
+        self.ran_sec1 = [random.randint(0,69) for i in range(self.size-2)]
+        self.ran_sec2 = [random.randint(0,69) for i in range(self.size-2)]
 
     def update(self):
-        k = self.tiles[0]
-        for j in range(len(self.tiles)-1):
-            self.tiles[j] = self.tiles[j+1]
-            self.tiles[len(self.tiles)-1] = k
-        self.count = 0
+        self.ran_sec1 = [random.randint(0,69) for i in range(self.size-2)]
+        self.ran_sec2 = [random.randint(0,69) for i in range(self.size-2)]
     
-    def place_tile(self):
-        for i in range(25):
-            self.tiles.append(Tile())
-
     def draw(self, pipeline):
-        c_x = 0
-        c_y = 0
-        for k in self.tiles:
-            k.draw(pipeline, c_x%5, c_y)
-            c_x += 1
-            c_y = c_x//5
+        #sg.drawSceneGraphNode(self.amodel, pipeline, "transform")
+
+        for j in range(self.size-2):
+            for i in range(self.size-2):
+                a = self.ran_sec1[i] * self.ran_sec2[j] - i*self.ran_sec1[-1*j] * self.ran_sec2[i] + j*i + i + j + self.ran_sec1[0] - self.ran_sec2[0]
+                if a%7 == 0:    
+                    self.amodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
+                    sg.drawSceneGraphNode(self.amodel, pipeline, "transform")
+                if a%7 == 1:    
+                    self.bmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
+                    sg.drawSceneGraphNode(self.bmodel, pipeline, "transform")
+                if a%7 == 2:    
+                    self.cmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
+                    sg.drawSceneGraphNode(self.cmodel, pipeline, "transform")
+                if a%7 == 3:    
+                    self.dmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
+                    sg.drawSceneGraphNode(self.dmodel, pipeline, "transform")
+                if a%7 == 4:    
+                    self.emodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
+                    sg.drawSceneGraphNode(self.emodel, pipeline, "transform")
+                if a%7 == 5:    
+                    self.fmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
+                    sg.drawSceneGraphNode(self.fmodel, pipeline, "transform")
+                if a%7 == 6:    
+                    self.gmodel.transform = tr.translate(-1+i/(self.size/2)+3/(self.size), 1-j/(self.size/2)-3/(self.size), 0)
+                    sg.drawSceneGraphNode(self.gmodel, pipeline, "transform")
 
 
 class Apple(object):
@@ -278,13 +312,46 @@ class Apple(object):
     def __init__(self, grid_size):
         gpu_apple = es.toGPUShape(bs.createColorQuad(1.0, 0.0, 0.0))
         #gpuBoo = es.toGPUShape(bs.createTextureQuad("img/boo.png"), GL_REPEAT, GL_NEAREST)
+        gpu_cup = es.toGPUShape(bs.Shape([#   positions        colors
+                                            -0.85, 1.0, 0.0, 153/255, 217/255, 234/255, 
+                                            0.85, 1.0, 0.0, 153/255, 217/255, 234/255,
+                                            0.0, 4/12, 0.0, 153/255, 217/255, 234/255], [0, 1, 2]))
+        gpu_drink = es.toGPUShape(bs.Shape([#   positions        colors
+                                            -0.55, 0.8, 0.0, 205/255, 238/255, 106/255, 
+                                            0.55, 0.8, 0.0, 205/255, 238/255, 106/255,
+                                            0.0, 5/12, 0.0, 205/255, 238/255, 106/255], [0, 1, 2]))
+        gpu_neck = es.toGPUShape(bs.createColorQuad(153/255, 217/255, 234/255))
+        gpu_base = es.toGPUShape(bs.Shape([#   positions        colors
+                                            -0.6, -0.7, 0.0, 153/255, 217/255, 234/255, 
+                                            0.6, -0.7, 0.0, 153/255, 217/255, 234/255,
+                                            0.0, -1/2, 0.0, 153/255, 217/255, 234/255], [0, 1, 2]))
+
+        cup = sg.SceneGraphNode('cup')
+        cup.transform = tr.uniformScale(1)
+        cup.childs += [gpu_cup]
+
+        drink = sg.SceneGraphNode('drink')
+        drink.transform = tr.uniformScale(1)
+        drink.childs += [gpu_drink]
+
+        neck = sg.SceneGraphNode('neck')
+        neck.transform = tr.scale(0.1,1.2,1)
+        neck.childs += [gpu_neck]
+
+        base = sg.SceneGraphNode('base')
+        base.transform = tr.uniformScale(1)
+        base.childs += [gpu_base]
 
         self.size = grid_size
         self.sizef = grid_size/2
 
         apple = sg.SceneGraphNode('apple')
-        apple.transform = tr.scale(1/self.sizef, 1/self.sizef, 1)
-        apple.childs += [gpu_apple]#gpuBoo]
+        apple.transform = tr.matmul([tr.scale(0.5,0.5,0.0),tr.scale(1/self.sizef, 1/self.sizef, 1)])
+        apple.childs += [cup, neck, base, drink]
+
+        # apple = sg.SceneGraphNode('apple')
+        # apple.transform = tr.scale(1/self.sizef, 1/self.sizef, 1)
+        # apple.childs += [gpu_drink]
 
         apple_tr = sg.SceneGraphNode('appleTR')
         apple_tr.childs += [apple]
@@ -327,7 +394,7 @@ class ApplePlacer(object):
 
 class Message(object):
     def __init__(self):
-        black_background = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        black_background = es.toGPUShape(bs.createTextureQuad("img/original.png"),GL_REPEAT, GL_NEAREST)
         gpu_game_over = es.toGPUShape(bs.createTextureQuad("img/game_over.png"), GL_REPEAT, GL_NEAREST)
 
         background = sg.SceneGraphNode('background')
@@ -335,7 +402,7 @@ class Message(object):
         background.childs += [black_background]
         
         game_over = sg.SceneGraphNode('game_over')
-        game_over.transform = tr.scale(1.6,0.9,1)
+        game_over.transform = tr.scale(1.5,0.85,1)
         game_over.childs += [gpu_game_over]
 
         game_over_tr = sg.SceneGraphNode('game_overTR')
@@ -360,7 +427,7 @@ class Message(object):
 # ...
 # ...
 # ...
-#                 glUseProgram(pipeline_texture.shaderProgram)
+# glUseProgram(pipeline_texture.shaderProgram)
 # snake.draw(pipeline_texture)
 # glUseProgram(pipeline_no_texture.shaderProgram)
-# apple.draw(pipeline_transform)
+# apple.draw(pipeline_no_texture)

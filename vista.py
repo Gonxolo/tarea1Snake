@@ -15,7 +15,11 @@ from controller import Controller
 
 if __name__ == '__main__':
 
-    grid_size = int(sys.argv[1])+2
+    if len(sys.argv) == 2:
+        grid_size = int(sys.argv[1])+2
+
+    else:
+        grid_size = 14
 
     # Initialize glfw
     if not glfw.init():
@@ -72,7 +76,7 @@ if __name__ == '__main__':
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 5.0
+    limitFPS = 1.0 / 2.0
 
     lastTime = glfw.get_time()
     timer = lastTime
@@ -103,40 +107,35 @@ if __name__ == '__main__':
 
         apples.create_apple()
 
-        snok.collide(apples)
-        
-
         if not snok.alive:
             if Ida:    
-                death_time += 0.01
-                if death_time >= 0.65:
+                death_time += 0.001
+                if death_time >= 1.5:
                     #death_time = 1.5
                     Ida = False
             else:
-                death_time -= 0.01
-                if death_time <= -0.65:
+                death_time -= 0.001
+                if death_time <= -1.5:
                     #death_time = 0
                     Ida = True
             
         while deltaTime >= 1.0:
-            #deltaTime = 1
             snok.movement()
-            #background.Counter()
-            #if background.count > 10:
-            #    background.update()
+            background.counter += 1
+            if background.counter > 7:
+                background.update()
+                background.counter = 0
             updates += 1
             deltaTime -= 1
         
+        snok.collide(apples)
 
-        # Reconocer la logica
-        #SNAKE.COLLIDE(APPLE)  # ---> RECORRER TODOS LOS HUEVOS
-        #snok.collide(apples)
 
         # DIBUJAR LOS MODELOS
-
-        background.draw(pipeline2)
-        glUseProgram(pipeline.shaderProgram)
-        apples.draw(pipeline)
+        if snok.alive:
+            background.draw(pipeline2)
+            glUseProgram(pipeline.shaderProgram)
+            apples.draw(pipeline)
 
         #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
         #                   tr.matmul([
@@ -165,14 +164,12 @@ if __name__ == '__main__':
         #                       tr.scale(1/6, 2, 1),
         #                       tr.identity()]))
         #pipeline2.drawShape(gpuOhnoRight)
-
-        glUseProgram(pipeline2.shaderProgram)
-        snok.draw(pipeline2)
+        if snok.alive:
+            glUseProgram(pipeline2.shaderProgram)
+            snok.draw(pipeline2)
 
         if not snok.alive:
-            glUseProgram(pipeline.shaderProgram)
-            message.draw_background(pipeline)
-            glUseProgram(pipeline2.shaderProgram)
+            message.draw_background(pipeline2)
             message.draw(pipeline2,death_time)
                 
 
