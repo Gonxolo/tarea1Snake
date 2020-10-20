@@ -59,15 +59,12 @@ if __name__ == '__main__':
     # Our shapes here are always fully painted
     glPolygonMode(GL_FRONT_AND_BACK, GL_FILL)
 
-    gpuOhnoTop = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
-    gpuOhnoBottom = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
-    gpuOhnoLeft = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
-    gpuOhnoRight = es.toGPUShape(bs.createTextureQuad("img/ohno.png"), GL_REPEAT, GL_NEAREST)
+    gpuSky = es.toGPUShape(bs.createTextureQuad("img/clouds.png"), GL_REPEAT, GL_NEAREST)
 
     # HACEMOS LOS OBJETOS
     snok = Snake(grid_size)
     #background = Background()
-    apples = ApplePlacer(grid_size)
+    vinyls = VinylPlacer(grid_size)
     #background = Tiler()
     background = Tile(grid_size)
     message = Message()
@@ -105,7 +102,7 @@ if __name__ == '__main__':
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT)
 
-        apples.create_apple()
+        vinyls.create_vinyl()
 
         if not snok.alive:
             if Ida:    
@@ -121,47 +118,28 @@ if __name__ == '__main__':
             
         while deltaTime >= 1.0:
             snok.movement()
+
             background.anim_counter += 1
             background.color_counter =  snok.body_size
             updates += 1
             deltaTime -= 1
         
-        snok.collide(apples)
+        snok.collide(vinyls)
 
+        vinyls.update()
 
         # DIBUJAR LOS MODELOS
+        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
+                          tr.matmul([
+                              tr.scale(2, 2, 1),
+                              tr.identity()]))
+        pipeline2.drawShape(gpuSky)
+
         if snok.alive:
             background.draw(pipeline2)
             glUseProgram(pipeline.shaderProgram)
-            apples.draw(pipeline)
+            vinyls.draw(pipeline)
 
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-        #                   tr.matmul([
-        #                       tr.translate(0, 1-1/12, 0),
-        #                       tr.scale(2, 1/6, 1),
-        #                       tr.identity()]))
-        #pipeline2.drawShape(gpuOhnoTop)
-
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-        #                   tr.matmul([
-        #                       tr.translate(0, -1+1/12, 0),
-        #                       tr.scale(2, 1/6, 1),
-        #                       tr.identity()]))
-        #pipeline2.drawShape(gpuOhnoBottom)
-
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-        #                   tr.matmul([
-        #                       tr.translate(-1+1/12, 0, 0),
-        #                       tr.scale(1/6, 2, 1),
-        #                       tr.identity()]))
-        #pipeline2.drawShape(gpuOhnoLeft)
-
-        #glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-        #                   tr.matmul([
-        #                       tr.translate(1-1/12, 0, 0),
-        #                       tr.scale(1/6, 2, 1),
-        #                       tr.identity()]))
-        #pipeline2.drawShape(gpuOhnoRight)
         if snok.alive:
             glUseProgram(pipeline2.shaderProgram)
             snok.draw(pipeline2)

@@ -3,7 +3,7 @@ Clase controlador, obtiene el input, lo procesa, y manda los mensajes
 a los modelos.
 """
 
-from modelos import Snake, ApplePlacer
+from modelos import Snake, VinylPlacer
 import glfw
 import sys
 from typing import Union
@@ -11,17 +11,17 @@ from typing import Union
 
 class Controller(object):
     model: Union['Snake', None]  # Con esto queremos decir que el tipo de modelo es 'Chansey' (nuestra clase) ó None
-    apples: Union['ApplePlacer', None]
+    vinyls: Union['VinylPlacer', None]
 
     def __init__(self):
         self.model = None
-        self.apples = None
+        self.vinyls = None
 
     def set_model(self, m):
         self.model = m
 
-    def set_apples(self, a):
-        self.apples = a
+    def set_vinyls(self, a):
+        self.vinyls = a
 
 
     def on_key(self, window, key, scancode, action, mods):

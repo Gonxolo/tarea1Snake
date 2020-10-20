@@ -156,8 +156,8 @@ class Snake(object):
         self.s_x = 0
         self.s_y = -1
 
-    def collide(self, apples: 'ApplePlacer'): # Colissions w/ apples , self and borders
-        deleted_apples = []
+    def collide(self, vinyls: 'VinylPlacer'): # Colissions w/ vinyls , self and borders
+        deleted_vinyls = []
         if min(self.pos_x) <= 0 or max(self.pos_x) >= self.size-1:
             self.alive = False
 
@@ -169,10 +169,10 @@ class Snake(object):
                 if self.pos_x[0] == self.pos_x[i] :
                     self.alive = False
                     
-        for a in apples.apples:
+        for a in vinyls.vinyls:
             if (a.pos_y/a.size + 1/a.size - 1/(2*a.size) < self.y[self.pos_y[0]] < a.pos_y/a.size + 1/a.size + 1/(2*a.size)):
                 if a.pos_x/a.size + 1/a.size - 1/(2*a.size) < self.x[self.pos_x[0]] < a.pos_x/a.size + 1/a.size + 1/(2*a.size):
-                    deleted_apples.append(a)
+                    deleted_vinyls.append(a)
                     c = self.body_size-1
                     self.pos_x.append(self.ppos_x[c])
                     self.pos_y.append(self.ppos_y[c])
@@ -184,8 +184,8 @@ class Snake(object):
                 #if (a.pos_y - 0.1 < self.y[self.pos_y[i]] < a.pos_y + 0.1) and (a.pos_x - 0.1 < self.x[self.pos_x[i]] < a.pos_x + 0.1):
                 if (a.pos_y/a.size + 1/a.size - 1/(2*a.size) < self.y[self.pos_y[i]] < a.pos_y/a.size + 1/a.size + 1/(2*a.size)):
                     if a.pos_x/a.size + 1/a.size - 1/(2*a.size) < self.x[self.pos_x[i]] < a.pos_x/a.size + 1/a.size + 1/(2*a.size):
-                        deleted_apples.append(a)
-        apples.delete(deleted_apples)
+                        deleted_vinyls.append(a)
+        vinyls.delete(deleted_vinyls)
 
 
 class Tile(object):
@@ -251,8 +251,22 @@ class Tile(object):
         self.anim_counter = 0
         self.color_counter = 3
 
+        #### FRONT BUILDING ####
+        gpuFront = es.toGPUShape(bs.createTextureQuad("img/front.png",(self.size-2),1), GL_REPEAT, GL_NEAREST)
+
+        front = sg.SceneGraphNode('front')
+        front.transform = tr.matmul([tr.translate(0,-1*(self.size-1)/self.size,0), tr.scale((self.size-2)/self.size, 1/self.size, 1),tr.scale(2, 2, 1)])
+        front.childs += [gpuFront]
+
+        transform_front = sg.SceneGraphNode('frontTR')
+        transform_front.childs += [front]
+
+        self.fmodel = transform_front
+
     
     def draw(self, pipeline):
+        sg.drawSceneGraphNode(self.fmodel, pipeline, "transform")
+
         if self.color_counter%15 == 0:
             sg.findNode(self.rmodel, 'rainbow').childs = []
             if self.anim_counter%10 <= 1:
@@ -297,92 +311,163 @@ class Tile(object):
                 sg.findNode(self.bmodel, 'tile_b').childs += [self.gpu_tile_b2_quad]
             sg.drawSceneGraphNode(self.bmodel, pipeline, "transform")
 
-       
 
 
-class Apple(object):
+class Vinyl(object):
 
     def __init__(self, grid_size):
-        gpu_apple = es.toGPUShape(bs.createColorQuad(1.0, 0.0, 0.0))
+        #gpu_apple = es.toGPUShape(bs.createColorQuad(1.0, 0.0, 0.0))
         #gpuBoo = es.toGPUShape(bs.createTextureQuad("img/boo.png"), GL_REPEAT, GL_NEAREST)
-        gpu_cup = es.toGPUShape(bs.Shape([#   positions        colors
-                                            -0.85, 1.0, 0.0, 153/255, 217/255, 234/255, 
-                                            0.85, 1.0, 0.0, 153/255, 217/255, 234/255,
-                                            0.0, 4/12, 0.0, 153/255, 217/255, 234/255], [0, 1, 2]))
-        gpu_drink = es.toGPUShape(bs.Shape([#   positions        colors
-                                            -0.55, 0.8, 0.0, 205/255, 238/255, 106/255, 
-                                            0.55, 0.8, 0.0, 205/255, 238/255, 106/255,
-                                            0.0, 5/12, 0.0, 205/255, 238/255, 106/255], [0, 1, 2]))
-        gpu_neck = es.toGPUShape(bs.createColorQuad(153/255, 217/255, 234/255))
-        gpu_base = es.toGPUShape(bs.Shape([#   positions        colors
-                                            -0.6, -0.7, 0.0, 153/255, 217/255, 234/255, 
-                                            0.6, -0.7, 0.0, 153/255, 217/255, 234/255,
-                                            0.0, -1/2, 0.0, 153/255, 217/255, 234/255], [0, 1, 2]))
+        # gpu_cup = es.toGPUShape(bs.Shape([#   positions        colors
+        #                                     -0.85, 1.0, 0.0, 153/255, 217/255, 234/255, 
+        #                                     0.85, 1.0, 0.0, 153/255, 217/255, 234/255,
+        #                                     0.0, 4/12, 0.0, 153/255, 217/255, 234/255], [0, 1, 2]))
+        # gpu_drink = es.toGPUShape(bs.Shape([#   positions        colors
+        #                                     -0.55, 0.8, 0.0, 205/255, 238/255, 106/255, 
+        #                                     0.55, 0.8, 0.0, 205/255, 238/255, 106/255,
+        #                                     0.0, 5/12, 0.0, 205/255, 238/255, 106/255], [0, 1, 2]))
+        # gpu_neck = es.toGPUShape(bs.createColorQuad(153/255, 217/255, 234/255))
+        # gpu_base = es.toGPUShape(bs.Shape([#   positions        colors
+        #                                     -0.6, -0.7, 0.0, 153/255, 217/255, 234/255, 
+        #                                     0.6, -0.7, 0.0, 153/255, 217/255, 234/255,
+        #                                     0.0, -1/2, 0.0, 153/255, 217/255, 234/255], [0, 1, 2]))
 
-        cup = sg.SceneGraphNode('cup')
-        cup.transform = tr.uniformScale(1)
-        cup.childs += [gpu_cup]
+        gpu_vert_rect = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        gpu_horz_rect = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        gpu_cuad = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        gpu_cuad2 = es.toGPUShape(bs.createColorQuad(0.2, 0.2, 0.2))
+        gpu_cuad3 = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        gpu_cuad4 = es.toGPUShape(bs.createColorQuad(0.2, 0.2, 0.2))
+        gpu_cuad5 = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        gpu_cuad6 = es.toGPUShape(bs.createColorQuad(0.2, 0.2, 0.2))
+        gpu_cuad7 = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        gpu_vert_rect2 = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        gpu_horz_rect2 = es.toGPUShape(bs.createColorQuad(0.0, 0.0, 0.0))
+        gpu_label = es.toGPUShape(bs.createColorQuad(0.85, 0.0, 0.0))
+        gpu_hole = es.toGPUShape(bs.createColorQuad(0.1, 0.0, 0.0))
 
-        drink = sg.SceneGraphNode('drink')
-        drink.transform = tr.uniformScale(1)
-        drink.childs += [gpu_drink]
+        vert_rect = sg.SceneGraphNode('vert_rect')
+        vert_rect.transform = tr.scale(1.1,1.6,1)
+        vert_rect.childs += [gpu_vert_rect]
 
-        neck = sg.SceneGraphNode('neck')
-        neck.transform = tr.scale(0.1,1.2,1)
-        neck.childs += [gpu_neck]
+        horz_rect = sg.SceneGraphNode('horz_rect')
+        horz_rect.transform = tr.scale(1.6,1.1,1)
+        horz_rect.childs += [gpu_horz_rect]
 
-        base = sg.SceneGraphNode('base')
-        base.transform = tr.uniformScale(1)
-        base.childs += [gpu_base]
+        cuad = sg.SceneGraphNode('cuad')
+        cuad.transform = tr.scale(1.4, 1.4, 1)
+        cuad.childs += [gpu_cuad]
+
+        cuad2 = sg.SceneGraphNode('cuad2')
+        cuad2.transform = tr.matmul([tr.scale(0.83,0.83,1),tr.scale(1.4, 1.4, 1)])
+        cuad2.childs += [gpu_cuad2]
+
+        cuad3 = sg.SceneGraphNode('cuad3')
+        cuad3.transform = tr.matmul([tr.scale(0.9,0.9,1),tr.scale(0.83,0.83,1),tr.scale(1.4, 1.4, 1)])
+        cuad3.childs += [gpu_cuad3]
+
+        cuad4 = sg.SceneGraphNode('cuad4')
+        cuad4.transform = tr.matmul([tr.scale(0.8,0.8,1),tr.scale(0.9,0.9,1),tr.scale(0.83,0.83,1),tr.scale(1.4, 1.4, 1)])
+        cuad4.childs += [gpu_cuad4]
+
+        cuad5 = sg.SceneGraphNode('cuad5')
+        cuad5.transform = tr.matmul([tr.scale(0.9,0.9,1),tr.scale(0.8,0.8,1),tr.scale(0.9,0.9,1),tr.scale(0.83,0.83,1),tr.scale(1.4, 1.4, 1)])
+        cuad5.childs += [gpu_cuad5]
+        
+        cuad6 = sg.SceneGraphNode('cuad6')
+        cuad6.transform = tr.matmul([tr.scale(0.7,0.7,1),tr.scale(0.9,0.9,1),tr.scale(0.8,0.8,1),tr.scale(0.9,0.9,1),tr.scale(0.83,0.83,1),tr.scale(1.4, 1.4, 1)])
+        cuad6.childs += [gpu_cuad6]
+
+        cuad7 = sg.SceneGraphNode('cuad7')
+        cuad7.transform = tr.matmul([tr.scale(0.9,0.9,1),tr.scale(0.7,0.7,1),tr.scale(0.9,0.9,1),tr.scale(0.8,0.8,1),tr.scale(0.9,0.9,1),tr.scale(0.83,0.83,1),tr.scale(1.4, 1.4, 1)])
+        cuad7.childs += [gpu_cuad7]
+
+        vert_rect2 = sg.SceneGraphNode('vert_rect2')
+        vert_rect2.transform = tr.scale(1.2,0.5,1)
+        vert_rect2.childs += [gpu_vert_rect2]
+
+        horz_rect2 = sg.SceneGraphNode('horz_rect2')
+        horz_rect2.transform = tr.scale(0.5,1.2,1)
+        horz_rect2.childs += [gpu_horz_rect2]
+
+        label = sg.SceneGraphNode('label')
+        label.transform = tr.scale(0.35,0.35,1)
+        label.childs += [gpu_label]
+
+        hole = sg.SceneGraphNode('hole')
+        hole.transform = tr.scale(0.15,0.15,1)
+        hole.childs += [gpu_hole]
 
         self.size = grid_size
         self.sizef = grid_size/2
 
-        apple = sg.SceneGraphNode('apple')
-        apple.transform = tr.matmul([tr.scale(0.5,0.5,0.0),tr.scale(1/self.sizef, 1/self.sizef, 1)])
-        apple.childs += [cup, neck, base, drink]
+        vinyl = sg.SceneGraphNode('vinyl')
+        vinyl.transform = tr.matmul([tr.scale(0.5,0.5,1),tr.scale(1/self.sizef, 1/self.sizef, 1)])
+        vinyl.childs += [vert_rect, horz_rect, cuad, cuad2, cuad3, cuad4, cuad5, cuad6, cuad7, vert_rect2, horz_rect2, label, hole]
 
         # apple = sg.SceneGraphNode('apple')
         # apple.transform = tr.scale(1/self.sizef, 1/self.sizef, 1)
         # apple.childs += [gpu_drink]
 
-        apple_tr = sg.SceneGraphNode('appleTR')
-        apple_tr.childs += [apple]
+        vinyl_tr = sg.SceneGraphNode('vinylTR')
+        vinyl_tr.childs += [vinyl]
+
+        vinyl_tr2 = sg.SceneGraphNode('vinylTR2')
+        vinyl_tr2.childs += [vinyl_tr]
 
         self.pos_y = random.randrange(-1*self.size + 2, self.size - 2, 2)
         self.pos_x = random.randrange(-1*self.size + 2, self.size - 2, 2)   
-        self.model = apple_tr
+        self.model = vinyl_tr
+        self.model2 = vinyl_tr2
+        self.counter = 0
+        self.pulse = True
+
+    def update(self):
+        if self.pulse:
+            self.counter += 0.001
+            if self.counter >= 0.4:
+                self.pulse = False
+        else:
+            self.counter -= 0.001
+            if self.counter <= -0.15:
+                self.pulse = True
+        self.model.transform = tr.scale(1 - self.counter,1 - self.counter,1)
+        
 
     def draw(self, pipeline):
-        self.model.transform = tr.translate(self.pos_x/self.size + 1/self.size, self.pos_y/self.size + 1/self.size, 0)
-        sg.drawSceneGraphNode(self.model, pipeline, "transform")
+        self.model2.transform = tr.translate(self.pos_x/self.size + 1/self.size, self.pos_y/self.size + 1/self.size, 0)
+        sg.drawSceneGraphNode(self.model2, pipeline, "transform")
 
 
-class ApplePlacer(object):
-    apples: List['Apple']
+class VinylPlacer(object):
+    vinyls: List['Vinyl']
 
     def __init__(self, grid_size):
-        self.apples = []
-        self.apple_size = grid_size
+        self.vinyls = []
+        self.vinyl_size = grid_size
 
     def draw(self, pipeline):
-        for k in self.apples:
+        for k in self.vinyls:
             k.draw(pipeline)
     
-    def create_apple(self):
-        if len(self.apples) >= 1:
+    def create_vinyl(self):
+        if len(self.vinyls) >= 1:
             return
         else:
-            self.apples.append(Apple(self.apple_size))
+            self.vinyls.append(Vinyl(self.vinyl_size))
+
+    def update(self):
+        for k in self.vinyls:
+            k.update()
 
     def delete(self, d):
         if len(d) == 0:
             return
-        remain_apples = []
-        for k in self.apples:  # Recorro todos los huevos
+        remain_vinyls = []
+        for k in self.vinyls:  # Recorro todos los huevos
             if k not in d:  # Si no se elimina, lo añado a la lista de huevos que quedan
-                remain_apples.append(k)
-        self.apples = remain_apples  # Actualizo la lista
+                remain_vinyls.append(k)
+        self.vinyls = remain_vinyls  # Actualizo la lista
 
 
 class Message(object):
