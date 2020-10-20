@@ -76,7 +76,7 @@ if __name__ == '__main__':
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 5.0
+    limitFPS = 1.0 / 3.0
 
     lastTime = glfw.get_time()
     timer = lastTime
@@ -121,10 +121,8 @@ if __name__ == '__main__':
             
         while deltaTime >= 1.0:
             snok.movement()
-            background.counter += 1
-            if background.counter > 7:
-                background.update()
-                background.counter = 0
+            background.anim_counter += 1
+            background.color_counter =  snok.body_size
             updates += 1
             deltaTime -= 1
         

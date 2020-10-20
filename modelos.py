@@ -193,29 +193,111 @@ class Tile(object):
     def __init__(self, grid_size):
         
         self.size = grid_size
+
+        ######      RAINBOW A       ######
+        self.gpu_r1_quad = es.toGPUShape(bs.createTextureQuad("img/rainbow1.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f1
+        self.gpu_r2_quad = es.toGPUShape(bs.createTextureQuad("img/rainbow2.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f2
+        self.gpu_r3_quad = es.toGPUShape(bs.createTextureQuad("img/rainbow3.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f3
+        self.gpu_r4_quad = es.toGPUShape(bs.createTextureQuad("img/rainbow4.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f4
+        self.gpu_r5_quad = es.toGPUShape(bs.createTextureQuad("img/rainbow5.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f5
+
+        ######      RAINBOW B       ######
+        self.gpu_rb1_quad = es.toGPUShape(bs.createTextureQuad("img/rainbowb1.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f1
+        self.gpu_rb2_quad = es.toGPUShape(bs.createTextureQuad("img/rainbowb2.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f2
+        self.gpu_rb3_quad = es.toGPUShape(bs.createTextureQuad("img/rainbowb3.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f3
+        self.gpu_rb4_quad = es.toGPUShape(bs.createTextureQuad("img/rainbowb4.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f4
+        self.gpu_rb5_quad = es.toGPUShape(bs.createTextureQuad("img/rainbowb5.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST) #f5
+
+
+        ### RAINBOW ANIMATION ###
+        rainbow = sg.SceneGraphNode('rainbow')
+        rainbow.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
+        rainbow.childs += [self.gpu_r1_quad]
+
+        transform_rainbow = sg.SceneGraphNode('rainbowTR')
+        transform_rainbow.childs += [rainbow]
+
+        self.rmodel = transform_rainbow
+        
         
         # Figuras básicas
-        gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_a.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST)
-
+        ###     PATRON A      ###
+        self.gpu_tile_a_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_a.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST)
+        self.gpu_tile_a2_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_a2.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST)
+        
         tile_a = sg.SceneGraphNode('tile_a')
         tile_a.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
-        tile_a.childs += [gpu_tile_a_quad]
+        tile_a.childs += [self.gpu_tile_a_quad]
 
         transform_tile_a = sg.SceneGraphNode('tile_aTR')
         transform_tile_a.childs += [tile_a]
 
         self.amodel = transform_tile_a
 
-        self.counter = 0
-        self.ran_sec1 = [random.randint(0,69) for i in range(self.size-2)]
-        self.ran_sec2 = [random.randint(0,69) for i in range(self.size-2)]
+        
+        ###     PATRON B      ###
+        self.gpu_tile_b_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_b.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST)
+        self.gpu_tile_b2_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_b2.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST)
 
-    def update(self):
-        self.ran_sec1 = [random.randint(0,69) for i in range(self.size-2)]
-        self.ran_sec2 = [random.randint(0,69) for i in range(self.size-2)]
+        tile_b = sg.SceneGraphNode('tile_b')
+        tile_b.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
+        tile_b.childs += [self.gpu_tile_b_quad]
+
+        transform_tile_b = sg.SceneGraphNode('tile_bTR')
+        transform_tile_b.childs += [tile_b]
+
+        self.bmodel = transform_tile_b
+
+        self.anim_counter = 0
+        self.color_counter = 3
+
     
     def draw(self, pipeline):
-        sg.drawSceneGraphNode(self.amodel, pipeline, "transform")
+        if self.color_counter%15 == 0:
+            sg.findNode(self.rmodel, 'rainbow').childs = []
+            if self.anim_counter%10 <= 1:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_r1_quad]
+            elif self.anim_counter%10 <= 3:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_r2_quad]
+            elif self.anim_counter%10 <= 5:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_r3_quad]
+            elif self.anim_counter%10 <= 7:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_r4_quad]
+            elif self.anim_counter%10 <= 9:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_r5_quad]
+            sg.drawSceneGraphNode(self.rmodel, pipeline, "transform")
+
+        elif self.color_counter%7 == 0:
+            sg.findNode(self.rmodel, 'rainbow').childs = []
+            if self.anim_counter%10 <= 1:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_rb1_quad]
+            elif self.anim_counter%10 <= 3:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_rb2_quad]
+            elif self.anim_counter%10 <= 5:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_rb3_quad]
+            elif self.anim_counter%10 <= 7:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_rb4_quad]
+            elif self.anim_counter%10 <= 9:
+                sg.findNode(self.rmodel, 'rainbow').childs += [self.gpu_rb5_quad]
+            sg.drawSceneGraphNode(self.rmodel, pipeline, "transform")
+
+        elif self.color_counter%2 == 0:
+            sg.findNode(self.amodel, 'tile_a').childs = []
+            if self.anim_counter%10 >= 5:
+                sg.findNode(self.amodel, 'tile_a').childs += [self.gpu_tile_a_quad]
+            else:
+                sg.findNode(self.amodel, 'tile_a').childs += [self.gpu_tile_a2_quad]
+            sg.drawSceneGraphNode(self.amodel, pipeline, "transform")
+
+        elif self.color_counter%2 == 1:
+            sg.findNode(self.bmodel, 'tile_b').childs = []
+            if self.anim_counter%10 >= 5:
+                sg.findNode(self.bmodel, 'tile_b').childs += [self.gpu_tile_b_quad]
+            else:
+                sg.findNode(self.bmodel, 'tile_b').childs += [self.gpu_tile_b2_quad]
+            sg.drawSceneGraphNode(self.bmodel, pipeline, "transform")
+
+       
 
 
 class Apple(object):
