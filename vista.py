@@ -17,7 +17,6 @@ if __name__ == '__main__':
 
     if len(sys.argv) == 2:
         grid_size = int(sys.argv[1])+2
-
     else:
         grid_size = 14
 
@@ -25,10 +24,10 @@ if __name__ == '__main__':
     if not glfw.init():
         sys.exit()
 
-    width = 800
-    height = 800
+    width = 950
+    height = 950
 
-    window = glfw.create_window(width, height, 'AAAAAAAAAA', None, None)
+    window = glfw.create_window(width, height, 'DISCO SNOK!', None, None)
 
     if not window:
         glfw.terminate()
@@ -43,11 +42,10 @@ if __name__ == '__main__':
 
     # Assembling the shader program (pipeline) with both shaders
     pipeline = es.SimpleTransformShaderProgram()
-    pipeline2 = es.SimpleTextureTransformShaderProgram()
+    pipeline_texture = es.SimpleTextureTransformShaderProgram()
 
     # Telling OpenGL to use our shader program
-    #glUseProgram(pipeline.shaderProgram)
-    glUseProgram(pipeline2.shaderProgram)
+    glUseProgram(pipeline_texture.shaderProgram)
 
     # Setting up the clear screen color
     glClearColor(0.0, 0.0, 0.0, 1.0)
@@ -63,17 +61,13 @@ if __name__ == '__main__':
 
     # HACEMOS LOS OBJETOS
     snok = Snake(grid_size)
-    #background = Background()
     vinyls = VinylPlacer(grid_size)
-    #background = Tiler()
-    background = Tile(grid_size)
+    floor = Tile(grid_size)
     message = Message()
-
-    #background = createTextureQuad("background_grid.png")
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 3.0
+    limitFPS = 1.0 / 5.0
 
     lastTime = glfw.get_time()
     timer = lastTime
@@ -86,8 +80,6 @@ if __name__ == '__main__':
 
     death_time = 0
     Ida = True
-
-    #background.place_tile()
 
     while not glfw.window_should_close(window):  # Dibujando --> 1. obtener el input
 
@@ -103,51 +95,42 @@ if __name__ == '__main__':
         glClear(GL_COLOR_BUFFER_BIT)
 
         vinyls.create_vinyl()
-
-        if not snok.alive:
-            if Ida:    
-                death_time += 0.001
-                if death_time >= 1.5:
-                    #death_time = 1.5
-                    Ida = False
-            else:
-                death_time -= 0.001
-                if death_time <= -1.5:
-                    #death_time = 0
-                    Ida = True
             
         while deltaTime >= 1.0:
             snok.movement()
-
-            background.anim_counter += 1
-            background.color_counter =  snok.body_size
+            floor.anim_counter += 1
+            floor.color_counter =  snok.body_size
             updates += 1
             deltaTime -= 1
         
         snok.collide(vinyls)
-
         vinyls.update()
 
         # DIBUJAR LOS MODELOS
-        glUniformMatrix4fv(glGetUniformLocation(pipeline2.shaderProgram, "transform"), 1, GL_TRUE,
-                          tr.matmul([
-                              tr.scale(2, 2, 1),
-                              tr.identity()]))
-        pipeline2.drawShape(gpuSky)
-
         if snok.alive:
-            background.draw(pipeline2)
+            glUniformMatrix4fv(glGetUniformLocation(pipeline_texture.shaderProgram, "transform"), 1, GL_TRUE,
+                    tr.matmul([tr.scale(2, 2, 1),tr.identity()]))
+            pipeline_texture.drawShape(gpuSky)
+            
+            floor.draw(pipeline_texture)
             glUseProgram(pipeline.shaderProgram)
             vinyls.draw(pipeline)
-
-        if snok.alive:
-            glUseProgram(pipeline2.shaderProgram)
-            snok.draw(pipeline2)
+            glUseProgram(pipeline_texture.shaderProgram)
+            snok.draw_body(pipeline_texture)
+            snok.draw(pipeline_texture)
 
         if not snok.alive:
-            message.draw_background(pipeline2)
-            message.draw(pipeline2,death_time)
-                
+            message.draw_background(pipeline_texture)
+            message.draw(pipeline_texture,death_time)
+
+            if Ida:   
+                death_time += 0.001
+                if death_time >= 1.5:
+                    Ida = False
+            else:
+                death_time -= 0.001
+                if death_time <= -1.5:
+                    Ida = True
 
         frames += 1
 

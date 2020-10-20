@@ -34,18 +34,18 @@ class Snake(object):
 
     def __init__(self, grid_size):
         # Figuras básicas
-        gpu_head_quad = es.toGPUShape(bs.createTextureQuad("img/guy_a.png"), GL_REPEAT, GL_NEAREST)#es.toGPUShape(bs.createColorQuad(0.0, 1.0, 0.0))  # rojo
+        gpu_head_quad = es.toGPUShape(bs.createTextureQuad("img/guy_a.png"), GL_REPEAT, GL_NEAREST)
         gpu_body_quad = es.toGPUShape(bs.createTextureQuad("img/guy_b.png"), GL_REPEAT, GL_NEAREST)
         gpu_body2_quad = es.toGPUShape(bs.createTextureQuad("img/guy_c.png"), GL_REPEAT, GL_NEAREST)
 
         self.size = grid_size
 
         body = sg.SceneGraphNode('body')
-        body.transform = tr.uniformScale(1)
+        body.transform = tr.translate(0,0.5,0)
         body.childs += [gpu_body_quad]
 
         player_body = sg.SceneGraphNode('snok_body')
-        player_body.transform = tr.matmul([tr.scale(1/(self.size/2), 1/(self.size/2), 0), tr.translate(0, 2/(self.size/2), 0)])
+        player_body.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
         player_body.childs += [body]
 
         transform_player_body = sg.SceneGraphNode('snok_bodyTR')
@@ -54,11 +54,11 @@ class Snake(object):
         self.body_model = transform_player_body
 
         body2 = sg.SceneGraphNode('body2')
-        body2.transform = tr.uniformScale(1)
+        body2.transform = tr.translate(0,0.5,0)
         body2.childs += [gpu_body2_quad]
 
         player_body2 = sg.SceneGraphNode('snok_body2')
-        player_body2.transform = tr.matmul([tr.scale(1/(self.size/2), 1/(self.size/2), 0), tr.translate(0, 2/(self.size/2), 0)])
+        player_body2.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
         player_body2.childs += [body2]
 
         transform_player_body2 = sg.SceneGraphNode('snok_bodyTR')
@@ -67,7 +67,7 @@ class Snake(object):
         self.body2_model = transform_player_body2
 
         head = sg.SceneGraphNode('head')
-        head.transform = tr.uniformScale(1)
+        head.transform = tr.translate(0,0.5,0)
         head.childs += [gpu_head_quad]
 
         self.s_x = 0
@@ -75,8 +75,8 @@ class Snake(object):
 
         self.alive = True
 
-        self.x = [i/self.size for i in range(-1*self.size+1,self.size,2)]
-        self.y = [j/self.size for j in range(-1*self.size+1,self.size,2)]
+        self.x = [i for i in range(-2, 2*(self.size-3)+3,2)]
+        self.y = [j for j in range(-2, 2*(self.size-2)+3,2)]
         self.ppos_x = [7,7,7]
         self.ppos_y = [7,6,5]
         self.pos_x = [7,7,7]
@@ -84,7 +84,7 @@ class Snake(object):
         self.body_size = 3
 
         player = sg.SceneGraphNode('snok')
-        player.transform = tr.matmul([tr.scale(1/(self.size/2), 1/(self.size/2), 0), tr.translate(0, 2/(self.size/2), 0)])
+        player.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
         player.childs += [head]
 
         transform_player = sg.SceneGraphNode('snokTR')
@@ -93,25 +93,25 @@ class Snake(object):
         self.model = transform_player
     
     def draw(self, pipeline):
+        # Head
+        if self.alive:
+            self.model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[0]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[0]]/(12*((self.size-2)/10)), 0.01)
+            sg.drawSceneGraphNode(self.model, pipeline, "transform")
 
+        # # Head if dead
+        # if not self.alive:
+        #     self.model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[0]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[0]]/(12*((self.size-2)/10)), 0)
+        #     sg.drawSceneGraphNode(self.model, pipeline, "transform") 
+
+    def draw_body(self,pipeline):
         # Body
         for i in range(1,self.body_size):
             if i%2 == 0:
-                self.body_model.transform = tr.translate(self.x[self.pos_x[i]], self.y[self.pos_y[i]], 0)
+                self.body_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
                 sg.drawSceneGraphNode(self.body_model, pipeline, "transform")
             else:
-                self.body2_model.transform = tr.translate(self.x[self.pos_x[i]], self.y[self.pos_y[i]], 0)
-                sg.drawSceneGraphNode(self.body2_model, pipeline, "transform")
-
-        # Head
-        if self.alive:
-            self.model.transform = tr.translate(self.x[self.pos_x[0]], self.y[self.pos_y[0]], 0)
-            sg.drawSceneGraphNode(self.model, pipeline, "transform")
-
-
-        if not self.alive:
-            self.model.transform = tr.translate(self.x[self.pos_x[0]], self.y[self.pos_y[0]], 0)
-            sg.drawSceneGraphNode(self.model, pipeline, "transform")   
+                self.body2_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
+                sg.drawSceneGraphNode(self.body2_model, pipeline, "transform")  
         
     def movement(self):
 
@@ -158,10 +158,10 @@ class Snake(object):
 
     def collide(self, vinyls: 'VinylPlacer'): # Colissions w/ vinyls , self and borders
         deleted_vinyls = []
-        if min(self.pos_x) <= 0 or max(self.pos_x) >= self.size-1:
+        if ((-1*(self.size-3)) + self.x[self.pos_x[0]])/(12*((self.size-2)/10)) < -10/12 or ((-1*(self.size-3)) + self.x[self.pos_x[0]])/(12*((self.size-2)/10)) > 10/12:
             self.alive = False
-
-        if min(self.pos_y) <= 0 or max(self.pos_y)  >= self.size-1:
+        
+        if ((-1*(self.size-3)) + self.y[self.pos_y[0]])/(12*((self.size-2)/10)) < -10/12 or ((-1*(self.size-3)) + self.y[self.pos_y[0]])/(12*((self.size-2)/10)) > 10/12:
             self.alive = False
 
         for i in range(1,len(self.pos_y)):
@@ -170,8 +170,8 @@ class Snake(object):
                     self.alive = False
                     
         for a in vinyls.vinyls:
-            if (a.pos_y/a.size + 1/a.size - 1/(2*a.size) < self.y[self.pos_y[0]] < a.pos_y/a.size + 1/a.size + 1/(2*a.size)):
-                if a.pos_x/a.size + 1/a.size - 1/(2*a.size) < self.x[self.pos_x[0]] < a.pos_x/a.size + 1/a.size + 1/(2*a.size):
+            if a.pos_y == self.y[self.pos_y[0]]:
+                if a.pos_x == self.x[self.pos_x[0]]:
                     deleted_vinyls.append(a)
                     c = self.body_size-1
                     self.pos_x.append(self.ppos_x[c])
@@ -181,9 +181,8 @@ class Snake(object):
                     self.body_size += 1
                 
             for i in range(1,len(self.pos_x)):    
-                #if (a.pos_y - 0.1 < self.y[self.pos_y[i]] < a.pos_y + 0.1) and (a.pos_x - 0.1 < self.x[self.pos_x[i]] < a.pos_x + 0.1):
-                if (a.pos_y/a.size + 1/a.size - 1/(2*a.size) < self.y[self.pos_y[i]] < a.pos_y/a.size + 1/a.size + 1/(2*a.size)):
-                    if a.pos_x/a.size + 1/a.size - 1/(2*a.size) < self.x[self.pos_x[i]] < a.pos_x/a.size + 1/a.size + 1/(2*a.size):
+                if a.pos_y == self.y[self.pos_y[i]]:
+                    if a.pos_x == self.x[self.pos_x[i]]:
                         deleted_vinyls.append(a)
         vinyls.delete(deleted_vinyls)
 
@@ -211,7 +210,7 @@ class Tile(object):
 
         ### RAINBOW ANIMATION ###
         rainbow = sg.SceneGraphNode('rainbow')
-        rainbow.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
+        rainbow.transform = tr.matmul([tr.scale(10/12, 10/12, 1),tr.scale(2, 2, 1)])
         rainbow.childs += [self.gpu_r1_quad]
 
         transform_rainbow = sg.SceneGraphNode('rainbowTR')
@@ -226,7 +225,7 @@ class Tile(object):
         self.gpu_tile_a2_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_a2.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST)
         
         tile_a = sg.SceneGraphNode('tile_a')
-        tile_a.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
+        tile_a.transform = tr.matmul([tr.scale(10/12, 10/12, 1),tr.scale(2, 2, 1)])
         tile_a.childs += [self.gpu_tile_a_quad]
 
         transform_tile_a = sg.SceneGraphNode('tile_aTR')
@@ -240,7 +239,7 @@ class Tile(object):
         self.gpu_tile_b2_quad = es.toGPUShape(bs.createTextureQuad("img/pattern_b2.png",(self.size-2)/10,(self.size-2)/10), GL_REPEAT, GL_NEAREST)
 
         tile_b = sg.SceneGraphNode('tile_b')
-        tile_b.transform = tr.matmul([tr.scale((self.size-2)/self.size, (self.size-2)/self.size, 1),tr.scale(2, 2, 1)])
+        tile_b.transform = tr.matmul([tr.scale(10/12, 10/12, 1),tr.scale(2, 2, 1)])
         tile_b.childs += [self.gpu_tile_b_quad]
 
         transform_tile_b = sg.SceneGraphNode('tile_bTR')
@@ -252,10 +251,10 @@ class Tile(object):
         self.color_counter = 3
 
         #### FRONT BUILDING ####
-        gpuFront = es.toGPUShape(bs.createTextureQuad("img/front.png",(self.size-2),1), GL_REPEAT, GL_NEAREST)
+        gpuFront = es.toGPUShape(bs.createTextureQuad("img/front.png",10,1), GL_REPEAT, GL_NEAREST)
 
         front = sg.SceneGraphNode('front')
-        front.transform = tr.matmul([tr.translate(0,-1*(self.size-1)/self.size,0), tr.scale((self.size-2)/self.size, 1/self.size, 1),tr.scale(2, 2, 1)])
+        front.transform = tr.matmul([tr.translate(0,-1*(11/12),0), tr.scale(10/12, 1/12, 1),tr.scale(2, 2, 1)])
         front.childs += [gpuFront]
 
         transform_front = sg.SceneGraphNode('frontTR')
@@ -310,7 +309,6 @@ class Tile(object):
             else:
                 sg.findNode(self.bmodel, 'tile_b').childs += [self.gpu_tile_b2_quad]
             sg.drawSceneGraphNode(self.bmodel, pipeline, "transform")
-
 
 
 class Vinyl(object):
@@ -402,7 +400,7 @@ class Vinyl(object):
         self.sizef = grid_size/2
 
         vinyl = sg.SceneGraphNode('vinyl')
-        vinyl.transform = tr.matmul([tr.scale(0.5,0.5,1),tr.scale(1/self.sizef, 1/self.sizef, 1)])
+        vinyl.transform = tr.matmul([tr.scale(1/self.size, 1/self.size, 1)])
         vinyl.childs += [vert_rect, horz_rect, cuad, cuad2, cuad3, cuad4, cuad5, cuad6, cuad7, vert_rect2, horz_rect2, label, hole]
 
         # apple = sg.SceneGraphNode('apple')
@@ -415,8 +413,8 @@ class Vinyl(object):
         vinyl_tr2 = sg.SceneGraphNode('vinylTR2')
         vinyl_tr2.childs += [vinyl_tr]
 
-        self.pos_y = random.randrange(-1*self.size + 2, self.size - 2, 2)
-        self.pos_x = random.randrange(-1*self.size + 2, self.size - 2, 2)   
+        self.pos_y = random.randrange(0, 2*(self.size-3),2)
+        self.pos_x = random.randrange(0, 2*(self.size-3),2) 
         self.model = vinyl_tr
         self.model2 = vinyl_tr2
         self.counter = 0
@@ -435,7 +433,7 @@ class Vinyl(object):
         
 
     def draw(self, pipeline):
-        self.model2.transform = tr.translate(self.pos_x/self.size + 1/self.size, self.pos_y/self.size + 1/self.size, 0)
+        self.model2.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.pos_x/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.pos_y/(12*((self.size-2)/10)), 0)
         sg.drawSceneGraphNode(self.model2, pipeline, "transform")
 
 
