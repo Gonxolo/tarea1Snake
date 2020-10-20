@@ -37,6 +37,12 @@ class Snake(object):
         gpu_head_quad = es.toGPUShape(bs.createTextureQuad("img/guy_a.png"), GL_REPEAT, GL_NEAREST)
         gpu_body_quad = es.toGPUShape(bs.createTextureQuad("img/guy_b.png"), GL_REPEAT, GL_NEAREST)
         gpu_body2_quad = es.toGPUShape(bs.createTextureQuad("img/guy_c.png"), GL_REPEAT, GL_NEAREST)
+        gpu_body3_quad = es.toGPUShape(bs.createTextureQuad("img/guy_d.png"), GL_REPEAT, GL_NEAREST)
+        gpu_body4_quad = es.toGPUShape(bs.createTextureQuad("img/guy_e.png"), GL_REPEAT, GL_NEAREST)
+        gpu_body5_quad = es.toGPUShape(bs.createTextureQuad("img/girl_a.png"), GL_REPEAT, GL_NEAREST)
+        gpu_body6_quad = es.toGPUShape(bs.createTextureQuad("img/girl_b.png"), GL_REPEAT, GL_NEAREST)
+        gpu_body7_quad = es.toGPUShape(bs.createTextureQuad("img/girl_c.png"), GL_REPEAT, GL_NEAREST)
+        gpu_body8_quad = es.toGPUShape(bs.createTextureQuad("img/girl_d.png"), GL_REPEAT, GL_NEAREST)
 
         self.size = grid_size
 
@@ -61,10 +67,88 @@ class Snake(object):
         player_body2.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
         player_body2.childs += [body2]
 
-        transform_player_body2 = sg.SceneGraphNode('snok_bodyTR')
+        transform_player_body2 = sg.SceneGraphNode('snok_body2TR')
         transform_player_body2.childs += [player_body2]
 
         self.body2_model = transform_player_body2
+
+        body3 = sg.SceneGraphNode('body3')
+        body3.transform = tr.translate(0,0.5,0)
+        body3.childs += [gpu_body3_quad]
+
+        player_body3 = sg.SceneGraphNode('snok_body3')
+        player_body3.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
+        player_body3.childs += [body3]
+
+        transform_player_body3 = sg.SceneGraphNode('snok_body3TR')
+        transform_player_body3.childs += [player_body3]
+
+        self.body3_model = transform_player_body3
+
+        body4 = sg.SceneGraphNode('body4')
+        body4.transform = tr.translate(0,0.5,0)
+        body4.childs += [gpu_body4_quad]
+
+        player_body4 = sg.SceneGraphNode('snok_body4')
+        player_body4.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
+        player_body4.childs += [body4]
+
+        transform_player_body4 = sg.SceneGraphNode('snok_body4TR')
+        transform_player_body4.childs += [player_body4]
+
+        self.body4_model = transform_player_body4
+
+        body5 = sg.SceneGraphNode('body5')
+        body5.transform = tr.translate(0,0.5,0)
+        body5.childs += [gpu_body5_quad]
+
+        player_body5 = sg.SceneGraphNode('snok_body5')
+        player_body5.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
+        player_body5.childs += [body5]
+
+        transform_player_body5 = sg.SceneGraphNode('snok_body5TR')
+        transform_player_body5.childs += [player_body5]
+
+        self.body5_model = transform_player_body5
+
+        body6 = sg.SceneGraphNode('body6')
+        body6.transform = tr.translate(0,0.5,0)
+        body6.childs += [gpu_body6_quad]
+
+        player_body6 = sg.SceneGraphNode('snok_body6')
+        player_body6.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
+        player_body6.childs += [body6]
+
+        transform_player_body6 = sg.SceneGraphNode('snok_body6TR')
+        transform_player_body6.childs += [player_body6]
+
+        self.body6_model = transform_player_body6
+
+        body7 = sg.SceneGraphNode('body7')
+        body7.transform = tr.translate(0,0.5,0)
+        body7.childs += [gpu_body7_quad]
+
+        player_body7 = sg.SceneGraphNode('snok_body7')
+        player_body7.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
+        player_body7.childs += [body7]
+
+        transform_player_body7 = sg.SceneGraphNode('snok_body7TR')
+        transform_player_body7.childs += [player_body7]
+
+        self.body7_model = transform_player_body7
+
+        body8 = sg.SceneGraphNode('body8')
+        body8.transform = tr.translate(0,0.5,0)
+        body8.childs += [gpu_body8_quad]
+
+        player_body8 = sg.SceneGraphNode('snok_body8')
+        player_body8.transform = tr.scale(2/(self.size-2), 2/(self.size-2), 1)
+        player_body8.childs += [body8]
+
+        transform_player_body8 = sg.SceneGraphNode('snok_body8TR')
+        transform_player_body8.childs += [player_body8]
+
+        self.body8_model = transform_player_body8
 
         head = sg.SceneGraphNode('head')
         head.transform = tr.translate(0,0.5,0)
@@ -81,6 +165,7 @@ class Snake(object):
         self.ppos_y = [7,6,5]
         self.pos_x = [7,7,7]
         self.pos_y = [7,6,5]
+        self.body_sprites = [1,2]
         self.body_size = 3
 
         player = sg.SceneGraphNode('snok')
@@ -106,13 +191,32 @@ class Snake(object):
     def draw_body(self,pipeline):
         # Body
         for i in range(1,self.body_size):
-            if i%2 == 0:
+            c = self.body_sprites[i-1]
+            if c == 1:
                 self.body_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
                 sg.drawSceneGraphNode(self.body_model, pipeline, "transform")
-            else:
+            elif c == 2:
                 self.body2_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
-                sg.drawSceneGraphNode(self.body2_model, pipeline, "transform")  
-        
+                sg.drawSceneGraphNode(self.body2_model, pipeline, "transform")
+            elif c == 3:
+                self.body3_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
+                sg.drawSceneGraphNode(self.body3_model, pipeline, "transform")
+            elif c == 4:
+                self.body4_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
+                sg.drawSceneGraphNode(self.body4_model, pipeline, "transform")
+            elif c == 5:
+                self.body5_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
+                sg.drawSceneGraphNode(self.body5_model, pipeline, "transform")
+            elif c == 6:
+                self.body6_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
+                sg.drawSceneGraphNode(self.body6_model, pipeline, "transform")
+            elif c == 7:
+                self.body7_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
+                sg.drawSceneGraphNode(self.body7_model, pipeline, "transform")
+            elif c == 8:
+                self.body8_model.transform = tr.translate((-1*(self.size-3))/(12*((self.size-2)/10)) + self.x[self.pos_x[i]]/(12*((self.size-2)/10)), (-1*(self.size-3))/(12*((self.size-2)/10)) + self.y[self.pos_y[i]]/(12*((self.size-2)/10)), 0)
+                sg.drawSceneGraphNode(self.body8_model, pipeline, "transform")
+                      
     def movement(self):
 
         if not self.alive:
@@ -178,6 +282,7 @@ class Snake(object):
                     self.pos_y.append(self.ppos_y[c])
                     self.ppos_x.append(self.ppos_x[c])
                     self.ppos_y.append(self.ppos_y[c])
+                    self.body_sprites.append(random.randint(1,8))
                     self.body_size += 1
                 
             for i in range(1,len(self.pos_x)):    

@@ -18,7 +18,7 @@ if __name__ == '__main__':
     if len(sys.argv) == 2:
         grid_size = int(sys.argv[1])+2
     else:
-        grid_size = 14
+        grid_size = 12
 
     # Initialize glfw
     if not glfw.init():
@@ -67,7 +67,7 @@ if __name__ == '__main__':
 
     controlador.set_model(snok)
 
-    limitFPS = 1.0 / 5.0
+    limitFPS = 1.0 / 2.0
 
     lastTime = glfw.get_time()
     timer = lastTime
