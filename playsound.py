@@ -1,9 +1,7 @@
-import asyncio
-
 class PlaysoundException(Exception):
     pass
 
-async def _playsoundWin(sound, block = True):
+def _playsoundWin(sound, block = True):
     '''
     Utilizes windll.winmm. Tested and known to work with MP3 and WAVE on
     Windows 7 with Python 2.7. Probably works with more file formats.
@@ -40,7 +38,7 @@ async def _playsoundWin(sound, block = True):
     if block:
         sleep(float(durationInMS) / 1000.0)
 
-async def _playsoundOSX(sound, block = True):
+def _playsoundOSX(sound, block = True):
     '''
     Utilizes AppKit.NSSound. Tested and known to work with MP3 and WAVE on
     OS X 10.11 with Python 2.7. Probably works with anything QuickTime supports.
@@ -68,7 +66,7 @@ async def _playsoundOSX(sound, block = True):
     if block:
         sleep(nssound.duration())
 
-async def _playsoundNix(sound, block=True):
+def _playsoundNix(sound, block=True):
     """Play a sound using GStreamer.
     Inspired by this:
     https://gstreamer.freedesktop.org/documentation/tutorials/playback/playbin-usage.html

@@ -80,7 +80,7 @@ if __name__ == '__main__':
     death_time = 0
     Ida = True
 
-    asyncio.run(playsound("sound/Conga.mp3", block = False))
+    playsound("sound/Conga_2.mp3", block = False)
 
     while not glfw.window_should_close(window):  # Dibujando --> 1. obtener el input
         
