@@ -78,10 +78,10 @@ if __name__ == '__main__':
     death_time = 0
     Ida = True
 
-    playsound("sound/Conga.mp3")
+    
 
     while not glfw.window_should_close(window):  # Dibujando --> 1. obtener el input
-
+        
         # Using GLFW to check for input events
         glfw.poll_events()  # OBTIENE EL INPUT --> CONTROLADOR --> MODELOS
 
