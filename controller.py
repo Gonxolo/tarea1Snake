@@ -16,12 +16,16 @@ class Controller(object):
     def __init__(self):
         self.model = None
         self.vinyls = None
+        self.menu = None
 
     def set_model(self, m):
         self.model = m
 
     def set_vinyls(self, a):
         self.vinyls = a
+
+    def set_menu(self,menu):
+        self.menu = menu
 
 
     def on_key(self, window, key, scancode, action, mods):
@@ -33,24 +37,19 @@ class Controller(object):
 
         # Controlador modifica al modelo
         elif key == glfw.KEY_LEFT and action == glfw.PRESS:
-            #print('Move right')
             self.model.move_left()
 
         elif key == glfw.KEY_RIGHT and action == glfw.PRESS:
-            #print('Move left')
             self.model.move_right()
 
         elif key == glfw.KEY_UP and action == glfw.PRESS:
-            # print('Move left')
             self.model.move_up()
 
         elif key == glfw.KEY_DOWN and action == glfw.PRESS:
-            # print('Move left')
-            self.model.move_down()        
+            self.model.move_down()
 
-        #elif (key == glfw.KEY_LEFT or key == glfw.KEY_RIGHT) and action == glfw.RELEASE:
-        #    self.model.move_center()
+        elif key == glfw.KEY_E and action == glfw.PRESS:
+            self.menu.start = False        
 
-        # Raton toca la pantalla....
         else:
             print('Unknown key')

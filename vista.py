@@ -1,13 +1,9 @@
-"""
-Esta sería la clase vista. Contiene el ciclo de la aplicación y ensambla
-las llamadas para obtener el dibujo de la escena.
-"""
-
 import glfw
 from OpenGL.GL import *
 import sys
 import basic_shapes as bs
 import easy_shaders as es
+from playsound import *
 
 
 from modelos import *
@@ -66,11 +62,12 @@ if __name__ == '__main__':
     message = Message()
 
     controlador.set_model(snok)
+    controlador.set_menu(message)
 
-    limitFPS = 1.0 / 2.0
+    limitFPS = 1.0 / 5.0
 
-    lastTime = glfw.get_time()
-    timer = lastTime
+    lastTime = 0
+    timer = 0
 
     deltaTime = 0
     nowTime = 0
@@ -81,18 +78,28 @@ if __name__ == '__main__':
     death_time = 0
     Ida = True
 
-    while not glfw.window_should_close(window):  # Dibujando --> 1. obtener el input
+    playsound("sound/Conga.mp3")
 
-        # Calculamos el dt
-        nowTime = glfw.get_time()
-        deltaTime += (nowTime - lastTime) / limitFPS
-        lastTime = nowTime
+    while not glfw.window_should_close(window):  # Dibujando --> 1. obtener el input
 
         # Using GLFW to check for input events
         glfw.poll_events()  # OBTIENE EL INPUT --> CONTROLADOR --> MODELOS
 
         # Clearing the screen in both, color and depth
         glClear(GL_COLOR_BUFFER_BIT)
+
+        if message.start:
+            message.draw_main_menu(pipeline_texture)
+            glfw.swap_buffers(window)
+            continue
+        elif not message.start and lastTime == 0:
+            lastTime = glfw.get_time()
+            timer = lastTime
+        
+        # Calculamos el dt
+        nowTime = glfw.get_time()
+        deltaTime += (nowTime - lastTime) / limitFPS
+        lastTime = nowTime
 
         vinyls.create_vinyl()
             

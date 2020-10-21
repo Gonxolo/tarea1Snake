@@ -556,25 +556,56 @@ class VinylPlacer(object):
 # MENSAJES DEL JUEGO (game over)
 class Message(object):
     def __init__(self):
+        sky_background = es.toGPUShape(bs.createTextureQuad("img/clouds.png"), GL_REPEAT, GL_NEAREST) # main menu
+        gpu_title = es.toGPUShape(bs.createTextureQuad("img/snok.png"), GL_REPEAT, GL_NEAREST)
+        gpu_start = es.toGPUShape(bs.createTextureQuad("img/start.png"), GL_REPEAT, GL_NEAREST)
         black_background = es.toGPUShape(bs.createTextureQuad("img/original.png"),GL_REPEAT, GL_NEAREST) # Imagen de fondo
         gpu_game_over = es.toGPUShape(bs.createTextureQuad("img/game_over.png"), GL_REPEAT, GL_NEAREST) # GAME OVER
 
         background = sg.SceneGraphNode('background')
         background.transform = tr.scale(2,2,1)
         background.childs += [black_background]
+
+        main_menu = sg.SceneGraphNode('main_menu')
+        main_menu.transform = tr.scale(2,2,1)
+        main_menu.childs += [sky_background]
         
         game_over = sg.SceneGraphNode('game_over')
-        game_over.transform = tr.scale(1.5,0.85,1)
+        game_over.transform = tr.scale(1.65,0.85,1)
         game_over.childs += [gpu_game_over]
+
+        title = sg.SceneGraphNode('title')
+        title.transform = tr.matmul([tr.scale(1.7,0.5,1),tr.translate(0.0,0.3,0.0)])
+        title.childs += [gpu_title]
+        
+        start = sg.SceneGraphNode('start')
+        start.transform = tr.matmul([tr.scale(1.5,0.1,1),tr.translate(0.0,-7.0,0.0)])
+        start.childs += [gpu_start]
 
         game_over_tr = sg.SceneGraphNode('game_overTR')
         game_over_tr.childs += [game_over]
+
+        title_tr = sg.SceneGraphNode('titleTR')
+        title_tr.childs += [title]
+
+        start_tr = sg.SceneGraphNode('startTR')
+        start_tr.childs += [start]
+
+        main_menu_tr = sg.SceneGraphNode('main_menuTR')
+        main_menu_tr.childs += [main_menu]
 
         background_tr = sg.SceneGraphNode('backgroundTR')
         background_tr.childs += [background]
 
         self.background = background_tr
         self.game_over_model = game_over_tr
+        self.main_menu = main_menu_tr
+        self.title = title_tr
+        self.start_message = start_tr
+        self.start = True
+        self.game_over = False
+        self.title_growth = False
+        self.growth_counter = 0
 
     def draw(self, pipeline,timer):
         self.game_over_model.transform = tr.rotationY(timer) # Giro parcial
@@ -582,3 +613,18 @@ class Message(object):
 
     def draw_background(self, pipeline):
         sg.drawSceneGraphNode(self.background, pipeline, "transform")
+
+    def draw_main_menu(self,pipeline):
+        sg.drawSceneGraphNode(self.main_menu, pipeline, "transform")
+        if self.title_growth:   
+            self.growth_counter += 0.0005
+            if self.growth_counter >= 0.2:
+                self.title_growth = False
+        else:
+            self.growth_counter -= 0.0005
+            if self.growth_counter <= 0.0:
+                self.title_growth = True
+        self.title.transform = tr.scale(1 - self.growth_counter,1 - self.growth_counter,1)
+        sg.drawSceneGraphNode(self.title, pipeline, "transform")
+        sg.drawSceneGraphNode(self.start_message, pipeline, "transform")
+
