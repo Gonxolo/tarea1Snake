@@ -4,6 +4,7 @@ import sys
 import basic_shapes as bs
 import easy_shaders as es
 from playsound import *
+import asyncio
 
 
 from modelos import *
@@ -28,6 +29,7 @@ if __name__ == '__main__':
     if not window:
         glfw.terminate()
         sys.exit()
+
 
     glfw.make_context_current(window)
 
@@ -64,7 +66,7 @@ if __name__ == '__main__':
     controlador.set_model(snok)
     controlador.set_menu(message)
 
-    limitFPS = 1.0 / 5.0
+    limitFPS = 1.0 / 4.0
 
     lastTime = 0
     timer = 0
@@ -78,7 +80,7 @@ if __name__ == '__main__':
     death_time = 0
     Ida = True
 
-    
+    asyncio.run(playsound("sound/Conga.mp3", block = False))
 
     while not glfw.window_should_close(window):  # Dibujando --> 1. obtener el input
         
