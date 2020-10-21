@@ -4,7 +4,6 @@ import sys
 import basic_shapes as bs
 import easy_shaders as es
 from playsound import *
-import asyncio
 
 
 from modelos import *
