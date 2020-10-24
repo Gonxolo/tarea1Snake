@@ -3,26 +3,21 @@ Clase controlador, obtiene el input, lo procesa, y manda los mensajes
 a los modelos.
 """
 
-from modelos import Snake, VinylPlacer
+from modelos import Snake
 import glfw
 import sys
 from typing import Union
 
 
 class Controller(object):
-    model: Union['Snake', None]  # Con esto queremos decir que el tipo de modelo es 'Chansey' (nuestra clase) ó None
-    vinyls: Union['VinylPlacer', None]
+    model: Union['Snake', None]  # Con esto queremos decir que el tipo de modelo es 'Snake' (nuestra clase) ó None
 
     def __init__(self):
         self.model = None
-        self.vinyls = None
         self.menu = None
 
     def set_model(self, m):
         self.model = m
-
-    def set_vinyls(self, a):
-        self.vinyls = a
 
     def set_menu(self,menu):
         self.menu = menu
